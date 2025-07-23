@@ -1,3 +1,6 @@
+using bibliotheque_back_end.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,6 +10,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+//paramétrage sqlite
+var dbPath = Path.Combine(AppContext.BaseDirectory, "bibliotheque.db");
+builder.Services.AddDbContext<BibliothequeDb>(options =>
+    options.UseSqlite($"Data Source={dbPath}")
+);
+
+// Migration automatique à chaque démarrage
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<BibliothequeDb>();
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
