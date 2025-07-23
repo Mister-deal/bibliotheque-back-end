@@ -7,4 +7,8 @@
     <RootNamespace>bibliotheque_back_end</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
+  </ItemGroup>
+
 </Project>
