@@ -45,15 +45,15 @@ namespace bibliotheque_back_end.Models.DTO
             [SwaggerSchema("Editeur")]
             public string Editeur { get; set; }
 
-            // -- PROBLEME AVEC ENUM --  
+
             [Required(ErrorMessage = "La catégorie est requise.")]
-            [SwaggerSchema("Catégorie du livre (ex. : Roman, Essai, BD, etc.)", Enum = typeof(Categorie))]
+            [SwaggerSchema("Catégorie du livre (ex. : Roman, Essai, BD, etc.)")]
             [JsonConverter(typeof(JsonStringEnumConverter))]
             public Categorie Categorie { get; set; }
 
-            // -- PROBLEME AVEC ENUM --     
+
             [Required(ErrorMessage = "L'état du livre est requis.")]
-            [SwaggerSchema("État physique du livre (ex. : Neuf, Bon, Usagé)", Enum = typeof(EtatLivre))]
+            [SwaggerSchema("État physique du livre (ex. : Neuf, Bon, Usagé)")]
             [JsonConverter(typeof(JsonStringEnumConverter))]
             public EtatLivre Etat { get; set; } = EtatLivre.Disponible;
 
@@ -61,10 +61,5 @@ namespace bibliotheque_back_end.Models.DTO
             public LivreDto() { }
             public LivreDto(Livre livre) =>
                 (Id, Titre, Auteur, Description, AnneePublication, Editeur) = (livre.Id, livre.Titre, livre.Auteur, livre.Description, livre.AnneePublication, livre.Editeur);
-
-
-            // -- FAUT-IL FAIRE UN TRUC AVEC ? --  
-            /*public ICollection<EmpruntLivre> EmpruntLivres { get; set; }
-            public ICollection<Reservation> Reservations { get; set; }*/
         }
 }
