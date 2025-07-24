@@ -9,12 +9,12 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
 //paramétrage sqlite
-var dbPath = Path.Combine(AppContext.BaseDirectory, "bibliotheque.db");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BibliothequeDb>(options =>
-    options.UseSqlite($"Data Source={dbPath}")
-);
+    options.UseSqlite(connectionString));
+
+var app = builder.Build();
 
 // Migration automatique à chaque démarrage
 using (var scope = app.Services.CreateScope())

@@ -5,7 +5,7 @@ namespace bibliotheque_back_end.Data
 {
     public class BibliothequeDb: DbContext
     {
-        public BibliothequeDb(DbContextOptions options) : base(options)
+        public BibliothequeDb(DbContextOptions<BibliothequeDb> options) : base(options)
         {
         }
 
