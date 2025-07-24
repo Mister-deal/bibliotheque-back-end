@@ -367,7 +367,7 @@ FodyWeavers.xsd
 *.sln.iml
 
 **/Migrations/
-
+bibliotheque.db
 # AdminLTE les images
 wwwroot/lib/admin-lte/img/*.png
 wwwroot/lib/admin-lte/img/*.jpg
