@@ -1,0 +1,101 @@
+﻿@{
+}
+@model BibliothequeBackEnd.Models.ViewModels.DashboardViewModel
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0"> Tableau de bord</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+
+        <!-- Statistiques -->
+        <div class="row">
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-light border">
+                    <div class="inner text-dark">
+                        <h3 class="text-dark">@Model.TotalBooks</h3>
+                        <p class="text-dark">Livres disponibles</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-book text-primary"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-light border">
+                    <div class="inner text-dark">
+                        <h3 class="text-dark">@Model.TotalUsers</h3>
+                        <p class="text-muted">Utilisateurs actifs</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-users text-dark"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-light border">
+                    <div class="inner text-dark">
+                        <h3 class="text-dark">@Model.TodayLoans</h3>
+                        <p class="text-muted">Emprunts aujourd'hui</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-handshake text-secondary"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-light border">
+                    <div class="inner text-dark">
+                        <h3 class="text-dark">@Model.PendingReturns</h3>
+                        <p class="text-dark">Retours en retard</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activités récentes -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header border-0">
+                        <h3 class="card-title">
+                            <i class="fas fa-history mr-2"></i>
+                            Activités récentes
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var activity in Model.RecentActivities)
+                        {
+                            <div class="border-left-0 border-right-0 border-top-0 border-bottom p-3 mb-3" style="border-left: 4px solid #6c757d !important;">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 text-dark">
+                                            <i class="fas fa-@activity.Icon mr-2 text-dark"></i>
+                                            @activity.Title
+                                        </h6>
+                                        <p class="mb-0 text-muted">@activity.Description</p>
+                                    </div>
+                                    <small class="text-muted">@activity.Time.ToString("dd/MM HH:mm")</small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
