@@ -1,4 +1,5 @@
 ﻿using bibliotheque_back_end.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace bibliotheque_back_end.Models.repositery;
 
@@ -13,12 +14,12 @@ public class ReservationRepository: IReservationRepository
 
     public IEnumerable<Reservation> GetAllReservations()
     {
-        return _context.Reservations.ToList();
+        return _context.Reservations.Include(r => r.Membre).Include(r => r.Livre).ToList();
     }
 
     public Reservation GetReservation(int id)
     {
-        return _context.Reservations.Find(id);
+        return _context.Reservations.Include(r => r.Membre).Include(r => r.Livre).FirstOrDefault(r => r.Id == id);
     }
 
     public void CreateReservation(Reservation reservation)

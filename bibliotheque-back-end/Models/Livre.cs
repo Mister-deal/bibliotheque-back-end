@@ -6,8 +6,9 @@ namespace bibliotheque_back_end.Models
     {
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Categorie Categorie { get; set; }
+
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public EtatLivre Etat { get; set; }
+        public EtatLivre Etat { get; set; } = EtatLivre.Disponible;
 
         public int Id { get; set; }  // Identifiant unique du livre
 
@@ -18,7 +19,7 @@ namespace bibliotheque_back_end.Models
         public required string Editeur { get; set; }  // Nom de l'éditeur
 
 
-        public ICollection<EmpruntLivre> EmpruntLivres { get; set; }
-        public ICollection<Reservation> Reservations { get; set; }
+        public ICollection<EmpruntLivre> EmpruntLivres { get; set; } =  new List<EmpruntLivre>();
+        public ICollection<Reservation> Reservations { get; set; } =  new List<Reservation>();
     }
 }
