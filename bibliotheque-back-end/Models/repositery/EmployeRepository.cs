@@ -13,36 +13,36 @@ public class EmployeRepository: IEmployeRepository
 
     public IEnumerable<Employe> getAllEmployees()
     {
-        throw new NotImplementedException();
+        return _context.Employes.ToList();
     }
 
     public Employe getEmployee(int id)
     {
-        throw new NotImplementedException();
+        return _context.Employes.Find(id);
     }
 
     public Employe getEmployeeByEmail(string email)
     {
-        throw new NotImplementedException();
+        return _context.Employes.Where(e => e.Email == email).FirstOrDefault();
     }
 
     public void AddEmployee(Employe emp)
     {
-        throw new NotImplementedException();
+        _context.Employes.Add(emp);
     }
 
     public void UpdateEmployee(Employe emp)
     {
-        throw new NotImplementedException();
+        _context.Employes.Update(emp);
     }
 
     public void DeleteEmployee(Employe emp)
     {
-        throw new NotImplementedException();
+        _context.Employes.Remove(emp);
     }
 
     public bool EmployeeExists(int id)
     {
-        throw new NotImplementedException();
+        return _context.Employes.Any(e => e.Id == id);
     }
 }
