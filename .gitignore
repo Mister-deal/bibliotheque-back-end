@@ -371,3 +371,4 @@ bibliotheque.db
 # AdminLTE les images
 wwwroot/lib/admin-lte/img/*.png
 wwwroot/lib/admin-lte/img/*.jpg
+password.txt

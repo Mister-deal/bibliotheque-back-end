@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
 // Partie Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -16,59 +17,78 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-//paramétrage sqlite
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Pour lire le mot de passe dans un fichier.txt 
+var password = File.ReadAllText("password.txt").Trim();
+
+// Connection PostgreSQL
+var connectionString = $"Host=localhost;Database=bibliotheque_db;Username=postgres;Password={password};Port=5432;Include Error Detail=true;Trust Server Certificate=true";
 builder.Services.AddDbContext<BibliothequeDb>(options =>
-    options.UseSqlite(connectionString));
+    options.UseNpgsql(connectionString));
+
 
 var app = builder.Build();
 
-// Migration automatique à chaque démarrage
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<BibliothequeDb>();
-    db.Database.Migrate();
+// Migration automatique à chaque démarrage TODO: à chercher comment faire pour auto migrer
+//using (var scope = app.Services.CreateScope())
+//{
+//    try
+//    {
+//        var db = scope.ServiceProvider.GetRequiredService<BibliothequeDb>();
 
-    // Check si la table Employes contient déjà des données
-    bool hasData = db.Employes.Any();
+//        // Vérifier la connexion et migrer
+//        Console.WriteLine(" Migration en cours...");
+//        db.Database.Migrate();
+//        Console.WriteLine(" Migration réussie !");
 
-    if (!hasData)
-    {
-        var connection = db.Database.GetDbConnection();
-        connection.Open();
+//        // Vérifier si des données existent déjà
+//        bool hasData = db.Employes.Any();
+//        Console.WriteLine($" Données existantes: {hasData}");
 
-        var sqlFile = Path.Combine(AppContext.BaseDirectory, "seed.sql");
-        if (File.Exists(sqlFile))
-        {
-            var sqlScript = File.ReadAllText(sqlFile);
+//        if (!hasData)
+//        {
+//            Console.WriteLine(" Insertion des données de test...");
+//            var connection = db.Database.GetDbConnection();
+//            connection.Open();
 
-            var commands = sqlScript.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+//            var sqlFile = Path.Combine(AppContext.BaseDirectory, "seed.sql");
+//            if (File.Exists(sqlFile))
+//            {
+//                var sqlScript = File.ReadAllText(sqlFile);
+//                var commands = sqlScript.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
-            foreach (var commandText in commands)
-            {
-                var trimmedCmd = commandText.Trim();
-                if (!string.IsNullOrEmpty(trimmedCmd))
-                {
-                    using var command = connection.CreateCommand();
-                    command.CommandText = trimmedCmd;
-                    command.ExecuteNonQuery();
-                }
-            }
-        }
+//                foreach (var commandText in commands)
+//                {
+//                    var trimmedCmd = commandText.Trim();
+//                    if (!string.IsNullOrEmpty(trimmedCmd))
+//                    {
+//                        using var command = connection.CreateCommand();
+//                        command.CommandText = trimmedCmd;
+//                        command.ExecuteNonQuery();
+//                    }
+//                }
+//                Console.WriteLine(" Données insérées !");
+//            }
+//            else
+//            {
+//                Console.WriteLine(" Fichier seed.sql introuvable");
+//            }
 
-        connection.Close();
-    }
-}
+//            connection.Close();
+//        }
+//    }
+//    catch (Exception ex)
+//    {
+//        Console.WriteLine($" Erreur de migration: {ex.Message}");
+//        Console.WriteLine(" L'application continue sans migration...");
+//    }
+//}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
-//redirection
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
