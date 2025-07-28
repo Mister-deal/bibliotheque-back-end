@@ -1,6 +1,18 @@
 ﻿namespace bibliotheque_back_end.Models.Service.Interface;
 
-public class IEmployeService
+public interface IEmployeService
 {
+    IEnumerable<Employe> GetAllEmployees();
+    Employe GetEmployeeById(int id);
+    Employe GetEmployeeByEmail(string email);
+    
+    Employe AddEmployee(Employe newEmployee, string dataPassword);
+    
+    Employe UpdateEmployee(int id, Employe updatedEmployee);
+    Employe UpdateEmployeeRole(int id, Role updatedRole);
+
+    Employe DeleteEmployee(int id);
+    
+    bool employeeExists(int id);
     
 }
