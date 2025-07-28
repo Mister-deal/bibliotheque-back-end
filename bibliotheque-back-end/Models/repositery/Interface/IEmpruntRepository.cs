@@ -3,9 +3,9 @@
 public interface IEmpruntRepository
 {
     IEnumerable<Emprunt> getAllEmprunts();
-    Emprunt getEmpruntByEmail(string email);
+    Emprunt getEmpruntById(int id);
     void addEmprunt(Emprunt emprunt);
     void updateEmprunt(Emprunt emprunt);
     void deleteEmprunt(Emprunt emprunt);
-    bool checkIfEmpruntExists(string email);
+    bool checkIfEmpruntExists(int id);
 }

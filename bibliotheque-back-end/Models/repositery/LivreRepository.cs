@@ -13,31 +13,32 @@ public class LivreRepository:  ILivreRepository
 
     public IEnumerable<Livre> GetAllBooks()
     {
-        throw new NotImplementedException();
+        return _context.Livres.ToList();
     }
 
     public Livre GetBookById(int id)
     {
-        throw new NotImplementedException();
+        return _context.Livres.Find(id);
     }
 
-    public Livre CreateBook(Livre livre)
+    public void CreateBook(Livre livre)
     {
-        throw new NotImplementedException();
+        _context.Livres.Add(livre);
     }
 
-    public Livre UpdateBook(Livre livre)
+    public void UpdateBook(Livre livre)
     {
-        throw new NotImplementedException();
+        _context.Livres.Update(livre);
     }
 
-    public Livre DeleteBook(Livre livre)
+    public void DeleteBook(Livre livre)
     {
-        throw new NotImplementedException();
+        _context.Livres.Remove(livre);
     }
+
 
     public bool BookExists(int id)
     {
-        throw new NotImplementedException();
+        return _context.Livres.Any(e => e.Id == id);
     }
 }

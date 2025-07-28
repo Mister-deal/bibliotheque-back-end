@@ -13,31 +13,32 @@ public class EmpruntRepository: IEmpruntRepository
 
     public IEnumerable<Emprunt> getAllEmprunts()
     {
-        throw new NotImplementedException();
+        return _context.Emprunts.ToList();
     }
 
-    public Emprunt getEmpruntByEmail(string email)
+    public Emprunt getEmpruntById(int id)
     {
-        throw new NotImplementedException();
+        return _context.Emprunts.Find(id);
     }
+
 
     public void addEmprunt(Emprunt emprunt)
     {
-        throw new NotImplementedException();
+        _context.Emprunts.Add(emprunt);
     }
 
     public void updateEmprunt(Emprunt emprunt)
     {
-        throw new NotImplementedException();
+        _context.Emprunts.Update(emprunt);
     }
 
     public void deleteEmprunt(Emprunt emprunt)
     {
-        throw new NotImplementedException();
+        _context.Emprunts.Remove(emprunt);
     }
 
-    public bool checkIfEmpruntExists(string email)
+    public bool checkIfEmpruntExists(int id)
     {
-        throw new NotImplementedException();
+        return _context.Emprunts.Any(e => e.Id == id);
     }
 }
