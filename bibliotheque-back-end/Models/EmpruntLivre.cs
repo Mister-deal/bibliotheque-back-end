@@ -4,6 +4,8 @@
     {
         public int Id { get; set; }
         public int? IdLivre { get; set; }
+        public Livre livre { get; set; }
         public int? IdEmprunt { get; set; }
+        public Emprunt emprunt { get; set; }
     }
 }

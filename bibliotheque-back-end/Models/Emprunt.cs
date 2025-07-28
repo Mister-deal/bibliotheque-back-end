@@ -7,6 +7,6 @@
         public DateOnly DateEmprunt { get; set; }
         public DateOnly DateRetour { get; set; }
 
-        public ICollection<EmpruntLivre> LivresEmpruntes { get; set; }
+        public ICollection<EmpruntLivre> LivresEmpruntes { get; set; } = new List<EmpruntLivre>();
     }
 }

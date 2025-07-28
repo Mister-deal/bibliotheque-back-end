@@ -13,6 +13,6 @@ namespace bibliotheque_back_end.Models
         
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Role Role { get; set; }
-        public ICollection<Emprunt> empruntsValides { get; set; }
+        public ICollection<Emprunt> empruntsValides { get; set; } = new List<Emprunt>();
     }
 }
