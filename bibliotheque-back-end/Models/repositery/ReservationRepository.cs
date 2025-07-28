@@ -13,31 +13,31 @@ public class ReservationRepository: IReservationRepository
 
     public IEnumerable<Reservation> GetAllReservations()
     {
-        throw new NotImplementedException();
+        return _context.Reservations.ToList();
     }
 
     public Reservation GetReservation(int id)
     {
-        throw new NotImplementedException();
+        return _context.Reservations.Find(id);
     }
 
     public void CreateReservation(Reservation reservation)
     {
-        throw new NotImplementedException();
+        _context.Reservations.Add(reservation);
     }
 
     public void UpdateReservation(Reservation reservation)
     {
-        throw new NotImplementedException();
+        _context.Reservations.Update(reservation);
     }
 
     public void DeleteReservation(Reservation reservation)
     {
-        throw new NotImplementedException();
+        _context.Reservations.Remove(reservation);
     }
 
     public bool checkIfReservationExists(int id)
     {
-        throw new NotImplementedException();
+        return _context.Reservations.Any(e => e.Id == id);
     }
 }
