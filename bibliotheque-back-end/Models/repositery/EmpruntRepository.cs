@@ -12,43 +12,43 @@ public class EmpruntRepository: IEmpruntRepository
         _context = context;
     }
 
-    public IEnumerable<Emprunt> getAllEmprunts()
+    public IEnumerable<Emprunt> GetAllEmprunts()
     {
         return _context.Emprunts.Include(e => e.LivresEmpruntes).ThenInclude(el => el.livre).ToList();
     }
 
-    public Emprunt getEmpruntById(int id)
+    public Emprunt GetEmpruntById(int id)
     {
         return _context.Emprunts.Include(e => e.LivresEmpruntes).ThenInclude(el => el.livre).FirstOrDefault(e => e.Id == id);
     }
 
 
-    public void addEmprunt(Emprunt emprunt)
+    public void AddEmprunt(Emprunt emprunt)
     {
         _context.Emprunts.Add(emprunt);
     }
 
-    public void updateEmprunt(Emprunt emprunt)
+    public void UpdateEmprunt(Emprunt emprunt)
     {
         _context.Emprunts.Update(emprunt);
     }
 
-    public void deleteEmprunt(Emprunt emprunt)
+    public void DeleteEmprunt(Emprunt emprunt)
     {
         _context.Emprunts.Remove(emprunt);
     }
 
-    public bool checkIfEmpruntExists(int id)
+    public bool CheckIfEmpruntExists(int id)
     {
         return _context.Emprunts.Any(e => e.Id == id);
     }
 
-    public Emprunt getEmpruntWithBooks(int id)
+    public Emprunt GetEmpruntWithBooks(int id)
     {
-        return getEmpruntById(id);
+        return GetEmpruntById(id);
     }
 
-    public IEnumerable<Emprunt> getEmpruntsContainingBook(int livreId)
+    public IEnumerable<Emprunt> GetEmpruntsContainingBook(int livreId)
     {
         return _context.Emprunts
             .Include(e => e.LivresEmpruntes)

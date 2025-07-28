@@ -11,17 +11,17 @@ public class EmployeRepository: IEmployeRepository
         _context = context;
     }
 
-    public IEnumerable<Employe> getAllEmployees()
+    public IEnumerable<Employe> GetAllEmployees()
     {
         return _context.Employes.ToList();
     }
 
-    public Employe getEmployee(int id)
+    public Employe GetEmployee(int id)
     {
         return _context.Employes.Find(id);
     }
 
-    public Employe getEmployeeByEmail(string email)
+    public Employe GetEmployeeByEmail(string email)
     {
         return _context.Employes.Where(e => e.Email == email).FirstOrDefault();
     }
@@ -41,7 +41,7 @@ public class EmployeRepository: IEmployeRepository
         _context.Employes.Remove(emp);
     }
 
-    public bool EmployeeExists(int id)
+    public bool CheckIfEmployeeExists(int id)
     {
         return _context.Employes.Any(e => e.Id == id);
     }

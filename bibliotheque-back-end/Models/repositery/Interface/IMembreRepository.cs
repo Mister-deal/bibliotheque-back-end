@@ -2,9 +2,9 @@
 
 public interface IMembreRepository
 {
-    IEnumerable<Membre> getAllMembers();
-    Membre getMember(int id);
-    Membre getMemberByEmail(string email);
+    IEnumerable<Membre> GetAllMembers();
+    Membre GetMember(int id);
+    Membre GetMemberByEmail(string email);
     void AddMember(Membre member);
     void UpdateMember(Membre member);
     void DeleteMember(Membre member);

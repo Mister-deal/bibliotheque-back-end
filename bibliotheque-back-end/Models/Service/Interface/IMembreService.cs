@@ -3,14 +3,15 @@
 public interface IMembreService
 {
     IEnumerable<Membre> GetAllMembers();
-    Employe GetMemberById(int id);
-    Employe GetMemberByEmail(string email);
+    Membre GetMemberById(int id);
+    Membre GetMemberByEmail(string email);
     
-    Employe AddMember(Membre newMember, string dataPassword);
+    Membre AddMember(Membre newMember, string dataPassword);
     
-    Employe UpdateMember(int id, Membre updatedMember);
+    Membre UpdateMember(int id, Membre updatedMember);
+    Membre UpdatePasswordMember(int id, string oldPassword, string newPassword);
 
-    Employe DeleteMember(int id);
+    Membre DeleteMember(int id);
     
-    bool employeeExists(int id);
+    bool MemberExists(int id);
 }

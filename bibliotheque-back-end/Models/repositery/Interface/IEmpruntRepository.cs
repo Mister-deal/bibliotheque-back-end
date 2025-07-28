@@ -2,13 +2,13 @@
 
 public interface IEmpruntRepository
 {
-    IEnumerable<Emprunt> getAllEmprunts();
-    Emprunt getEmpruntById(int id);
-    void addEmprunt(Emprunt emprunt);
-    void updateEmprunt(Emprunt emprunt);
-    void deleteEmprunt(Emprunt emprunt);
-    bool checkIfEmpruntExists(int id);
+    IEnumerable<Emprunt> GetAllEmprunts();
+    Emprunt GetEmpruntById(int id);
+    void AddEmprunt(Emprunt emprunt);
+    void UpdateEmprunt(Emprunt emprunt);
+    void DeleteEmprunt(Emprunt emprunt);
+    bool CheckIfEmpruntExists(int id);
     
-    Emprunt getEmpruntWithBooks(int id);
-    IEnumerable<Emprunt> getEmpruntsContainingBook(int livreId);
+    Emprunt GetEmpruntWithBooks(int id);
+    IEnumerable<Emprunt> GetEmpruntsContainingBook(int livreId);
 }

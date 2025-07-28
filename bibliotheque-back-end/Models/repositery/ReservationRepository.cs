@@ -37,7 +37,7 @@ public class ReservationRepository: IReservationRepository
         _context.Reservations.Remove(reservation);
     }
 
-    public bool checkIfReservationExists(int id)
+    public bool CheckIfReservationExists(int id)
     {
         return _context.Reservations.Any(e => e.Id == id);
     }
