@@ -13,36 +13,36 @@ public class MembreRepository: IMembreRepository
 
     public IEnumerable<Membre> getAllMembers()
     {
-        throw new NotImplementedException();
+        return _context.Membres.ToList();
     }
 
     public Membre getMember(int id)
     {
-        throw new NotImplementedException();
+       return _context.Membres.Find(id);
     }
 
     public Membre getMemberByEmail(string email)
     {
-        throw new NotImplementedException();
+        return _context.Membres.Where(e => e.Email == email).FirstOrDefault();
     }
 
     public void AddMember(Membre member)
     {
-        throw new NotImplementedException();
+        _context.Membres.Add( member);
     }
 
     public void UpdateMember(Membre member)
     {
-        throw new NotImplementedException();
+        _context.Membres.Update(member);
     }
 
     public void DeleteMember(Membre member)
     {
-        throw new NotImplementedException();
+        _context.Membres.Remove(member);
     }
 
     public bool CheckIfMemberExists(int id)
     {
-        throw new NotImplementedException();
+        return _context.Membres.Any(e => e.Id == id);
     }
 }
