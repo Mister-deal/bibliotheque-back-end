@@ -117,15 +117,27 @@ Membre ──(0,n)── fait ──> Réservation
 
     ✅ Swagger intégré pour tester l’API
 
-🔧 Installation
 
-git clone https://github.com/Mister-deal/bibliothequeSimplon.git
+    🚀 Installation
+Cloner le repo
+
+git clone https: git clone https://github.com/Mister-deal/bibliothequeSimplon.git
 cd bibliotheque-simplon
+
+Installer Dotnet EF de manière globale dans votre ordinateur ouvrez votre powershell ou CMD en administrateur et ajoutez cette ligne
 
 # Configure ton appsettings.json (PostgreSQL, JWT secret, etc.)
 
+dotnet tool install --global dotnet -ef
+
+**créer un fichier .txt nommé "db-password" pour lier votre bdd et votre projet avec le nom du mdp de votre UserAdmin dans postgresql
+
+Creer la migration dans la console de la solution
+
+dotnet ef migrations add InitialCreate
+Appliquer la migration afin qu'un fichier sqLite soit créé
+
 dotnet ef database update
-dotnet run
 
 🧪 Test API
 
