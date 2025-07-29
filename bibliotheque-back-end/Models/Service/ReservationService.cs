@@ -1,17 +1,28 @@
-﻿using bibliotheque_back_end.Models.Service.Interface;
+﻿using bibliotheque_back_end.Models.repositery;
+using bibliotheque_back_end.Models.Service.Interface;
 
 namespace bibliotheque_back_end.Models.Service;
 
 public class ReservationService: IReservationService
 {
+    private readonly IReservationRepository _reservationRepository;
+
+    public ReservationService(IReservationRepository reservationRepository)
+    {
+        _reservationRepository = reservationRepository;
+    }
+
     public IEnumerable<Reservation> GetAllReservations()
     {
-        throw new NotImplementedException();
+        return  _reservationRepository.GetAllReservations();
     }
 
     public Reservation GetReservation(int id)
     {
-        throw new NotImplementedException();
+        if (id <= 0) throw new ArgumentException("Book ID doit être positif", nameof(id));
+        var reservation = _reservationRepository.GetReservation(id);
+        if (id == null) throw new ArgumentException($"livre avec l'id {id} non trouvé");
+        return reservation;
     }
 
     public IEnumerable<Reservation> GetActiveReservations()
