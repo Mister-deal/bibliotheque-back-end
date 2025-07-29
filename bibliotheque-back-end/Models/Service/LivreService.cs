@@ -23,13 +23,13 @@ public class LivreService: ILivreService
     {
         if (id <= 0) throw new ArgumentException("Book ID doit être positif", nameof(id));
         var book = _livreRepository.GetBookById(id);
-        if (id == null) throw new ArgumentException($"livre avec l'id {id} non trouvé");
+        if (book == null) throw new KeyNotFoundException($"Livre avec l'id {id} non trouvé");
         return book;
     }
 
     public Livre AddNewBook(Livre newBook)
     {
-        if(newBook == null) throw new ArgumentException("Livre doit <UNK>tre vide", nameof(newBook));
+        if (newBook == null) throw new ArgumentException("Le livre ne peut pas être null.", nameof(newBook));
         if (string.IsNullOrWhiteSpace(newBook.Titre) || string.IsNullOrWhiteSpace(newBook.Auteur) ||
             string.IsNullOrWhiteSpace(newBook.Editeur))
         {

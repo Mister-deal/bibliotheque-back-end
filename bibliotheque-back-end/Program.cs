@@ -1,15 +1,29 @@
-using System.Text.Json.Serialization;
 using bibliotheque_back_end.Data;
+using bibliotheque_back_end.Models.repositery;
+using bibliotheque_back_end.Models.Service;
+using bibliotheque_back_end.Models.Service.Interface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Partie Swagger
+// -- SWAGGER --
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Bibliothèque SIMPLON",
+        Version = "V.1",
+        Description = "Application de gestion numérique pour une bibliothèque avec ASP.Net (MVC)",
+    });
+    // Activer les annotations Swagger
+    c.EnableAnnotations();
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -24,6 +38,13 @@ var password = File.ReadAllText("password.txt").Trim();
 var connectionString = $"Host=localhost;Database=bibliotheque_db;Username=postgres;Password={password};Port=5432;Include Error Detail=true;Trust Server Certificate=true";
 builder.Services.AddDbContext<BibliothequeDb>(options =>
     options.UseNpgsql(connectionString));
+
+// Services
+builder.Services.AddScoped<ILivreService, LivreService>();
+
+// Repositories
+builder.Services.AddScoped<ILivreRepository, LivreRepository>();
+builder.Services.AddScoped<IEmpruntRepository, EmpruntRepository>();
 
 
 var app = builder.Build();
@@ -95,11 +116,15 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Partie Swagger 
+// -- SWAGGER --
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Biblitheque-Simplon v1");
+        c.RoutePrefix = "";
+    });
 }
 
 app.UseAuthorization();

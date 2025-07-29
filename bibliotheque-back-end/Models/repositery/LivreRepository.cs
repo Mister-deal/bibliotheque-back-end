@@ -24,16 +24,19 @@ public class LivreRepository:  ILivreRepository
     public void CreateBook(Livre livre)
     {
         _context.Livres.Add(livre);
+        _context.SaveChanges();
     }
 
     public void UpdateBook(Livre livre)
     {
         _context.Livres.Update(livre);
+        _context.SaveChanges();
     }
 
     public void DeleteBook(Livre livre)
     {
         _context.Livres.Remove(livre);
+        _context.SaveChanges();
     }
 
 
