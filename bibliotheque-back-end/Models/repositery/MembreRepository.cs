@@ -11,17 +11,17 @@ public class MembreRepository: IMembreRepository
         _context = context;
     }
 
-    public IEnumerable<Membre> getAllMembers()
+    public IEnumerable<Membre> GetAllMembers()
     {
         return _context.Membres.ToList();
     }
 
-    public Membre getMember(int id)
+    public Membre GetMember(int id)
     {
        return _context.Membres.Find(id);
     }
 
-    public Membre getMemberByEmail(string email)
+    public Membre GetMemberByEmail(string email)
     {
         return _context.Membres.Where(e => e.Email == email).FirstOrDefault();
     }

@@ -10,9 +10,10 @@ public interface IEmployeService
     
     Employe UpdateEmployee(int id, Employe updatedEmployee);
     Employe UpdateEmployeeRole(int id, Role updatedRole);
+    Employe UpdateEmployeePassword(int id, string oldPassword, string newPassword);
 
     Employe DeleteEmployee(int id);
     
-    bool employeeExists(int id);
+    bool EmployeeExists(int id);
     
 }

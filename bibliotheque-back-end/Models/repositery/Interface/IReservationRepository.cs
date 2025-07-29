@@ -7,5 +7,5 @@ public interface IReservationRepository
     void CreateReservation(Reservation reservation);
     void UpdateReservation(Reservation reservation);
     void DeleteReservation(Reservation reservation);
-    bool checkIfReservationExists(int id);
+    bool CheckIfReservationExists(int id);
 }
