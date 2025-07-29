@@ -2,10 +2,10 @@
 
 public interface ILivreRepository
 {
-    IEnumerable<Livre> GetAllBooks();
-    Livre GetBookById(int id);
-    void CreateBook(Livre livre);
-    void UpdateBook(Livre livre);
-    void DeleteBook(Livre livre);
-    bool BookExists(int id);
+    Task<IEnumerable<Livre>> GetAllBooksAsync();
+    Task<Livre?> GetBookByIdAsync(int id);
+    Task CreateBookAsync(Livre livre);
+    Task UpdateBookAsync(Livre livre);
+    Task DeleteBookAsync(Livre livre);
+    Task<bool> BookExistsAsync(int id);
 }

@@ -1,8 +1,8 @@
 ﻿using bibliotheque_back_end.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace bibliotheque_back_end.Models.repositery;
-
-public class LivreRepository:  ILivreRepository
+public class LivreRepository : ILivreRepository
 {
     private readonly BibliothequeDb _context;
 
@@ -11,37 +11,45 @@ public class LivreRepository:  ILivreRepository
         _context = context;
     }
 
-    public IEnumerable<Livre> GetAllBooks()
+    public async Task<IEnumerable<Livre>> GetAllBooksAsync()
     {
-        return _context.Livres.ToList();
+        // Utilise ToListAsync() pour récupérer tous les livres de manière asynchrone.
+        return await _context.Livres.ToListAsync();
     }
 
-    public Livre GetBookById(int id)
+    public async Task<Livre?> GetBookByIdAsync(int id)
     {
-        return _context.Livres.Find(id);
+        // Utilise FindAsync() pour rechercher un livre par clé primaire de manière asynchrone.
+        return await _context.Livres.FindAsync(id);
     }
 
-    public void CreateBook(Livre livre)
+    public async Task CreateBookAsync(Livre livre)
     {
-        _context.Livres.Add(livre);
-        _context.SaveChanges();
+        // Utilise AddAsync() pour ajouter l'entité de manière asynchrone.
+        await _context.Livres.AddAsync(livre);
+        // Important: _context.SaveChanges() est retiré ici.
+        // Les changements devront être persistés par un appel à _context.SaveChangesAsync()
+        // depuis la couche de service ou une unité de travail.
     }
 
-    public void UpdateBook(Livre livre)
+    public Task UpdateBookAsync(Livre livre)
     {
+        // Update() est synchrone car il modifie simplement l'état de l'entité dans le DbContext en mémoire.
+        // La persistance réelle se fera lors de l'appel asynchrone à SaveChangesAsync() ailleurs.
         _context.Livres.Update(livre);
-        _context.SaveChanges();
+        return Task.CompletedTask; // Retourne un Task complété car il n'y a pas d'opération asynchrone d'attente ici.
     }
 
-    public void DeleteBook(Livre livre)
+    public Task DeleteBookAsync(Livre livre)
     {
+        // Remove() est synchrone, similaire à Update().
         _context.Livres.Remove(livre);
-        _context.SaveChanges();
+        return Task.CompletedTask; // Retourne un Task complété.
     }
 
-
-    public bool BookExists(int id)
+    public async Task<bool> BookExistsAsync(int id)
     {
-        return _context.Livres.Any(e => e.Id == id);
+        // Utilise AnyAsync() pour vérifier l'existence de manière asynchrone.
+        return await _context.Livres.AnyAsync(e => e.Id == id);
     }
 }

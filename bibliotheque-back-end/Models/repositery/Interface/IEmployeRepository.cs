@@ -2,11 +2,12 @@
 
 public interface IEmployeRepository
 {
-    IEnumerable<Employe> GetAllEmployees();
-    Employe GetEmployee(int id);
-    Employe GetEmployeeByEmail(string email);
-    void AddEmployee(Employe emp);
-    void UpdateEmployee(Employe emp);
-    void DeleteEmployee(Employe emp);
-    bool CheckIfEmployeeExists(int id);
+    Task<IEnumerable<Employe>> GetAllEmployeesAsync();
+    Task<Employe?> GetEmployeeAsync(int id);
+    Task<Employe?> GetEmployeeByEmailAsync(string email);
+    Task AddEmployeeAsync(Employe emp);
+    Task UpdateEmployeeAsync(Employe emp);
+    Task DeleteEmployeeAsync(Employe emp);
+    Task<bool> CheckIfEmployeeExistsAsync(int id);
+    Task<bool> ExistsByEmailAsync(string email);
 }

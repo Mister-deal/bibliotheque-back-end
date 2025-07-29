@@ -1,119 +1,191 @@
-﻿using bibliotheque_back_end.Models.repositery;
+﻿using bibliotheque_back_end.Data;
+using bibliotheque_back_end.Models.repositery;
 using bibliotheque_back_end.Models.Service.Interface;
 
 namespace bibliotheque_back_end.Models.Service;
 
-public class MembreService: IMembreService
+public class MembreService : IMembreService
 {
     private readonly IMembreRepository _membreRepository;
-    private readonly IEmpruntRepository _empruntRepository;
+    private readonly IEmpruntRepository _empruntRepository; // Gardé au cas où, mais pas utilisé directement dans les méthodes actuelles du repository.
+    private readonly BibliothequeDb _context; // Ajout du DbContext pour SaveChangesAsync()
 
-    public MembreService(IMembreRepository membreRepository, IEmpruntRepository empruntRepository)
+    public MembreService(IMembreRepository membreRepository, IEmpruntRepository empruntRepository, BibliothequeDb context)
     {
         _membreRepository = membreRepository;
         _empruntRepository = empruntRepository;
+        _context = context; // Initialisation du DbContext
     }
 
-    public IEnumerable<Membre> GetAllMembers()
+    public async Task<IEnumerable<Membre>> GetAllMembersAsync()
     {
-       return _membreRepository.GetAllMembers();
+        return await _membreRepository.GetAllMembersAsync();
     }
 
-    public Membre GetMemberById(int id)
+    public async Task<Membre?> GetMemberByIdAsync(int id)
     {
-        if(id <= 0) throw new ArgumentException(nameof(id));
-        var member = _membreRepository.GetMember(id);
-        if(id == null) throw new ArgumentException(nameof(id));
+        if (id <= 0)
+        {
+            throw new ArgumentException("L'ID du membre doit être supérieur à zéro.", nameof(id));
+        }
+
+        var member = await _membreRepository.GetMemberAsync(id);
+        // L'interface permet un retour null, donc pas d'exception ArgumentException si non trouvé.
+        // C'est à la couche appelante de gérer le cas où le membre n'est pas trouvé.
         return member;
     }
 
-    public Membre GetMemberByEmail(string email)
+    public async Task<Membre?> GetMemberByEmailAsync(string email)
     {
-        return _membreRepository.GetMemberByEmail(email);
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            throw new ArgumentException("L'email ne peut pas être nul ou vide.", nameof(email));
+        }
+        return await _membreRepository.GetMemberByEmailAsync(email);
     }
 
-    public Membre AddMember(Membre newMember, string dataPassword)
+    public async Task<Membre> AddMemberAsync(Membre newMember, string dataPassword)
     {
-        if(newMember == null) throw new ArgumentException(nameof(newMember));
+        // Correction de la logique de vérification de null :
+        if (newMember == null)
+        {
+            throw new ArgumentNullException(nameof(newMember), "L'objet membre ne peut pas être nul.");
+        }
 
         if (string.IsNullOrWhiteSpace(dataPassword))
         {
-            throw new ArgumentException("le mot de passe ne peut être nul ou vide", nameof(dataPassword));
+            throw new ArgumentException("Le mot de passe ne peut être nul ou vide.", nameof(dataPassword));
         }
         if (string.IsNullOrWhiteSpace(newMember.Email) ||
             string.IsNullOrWhiteSpace(newMember.Nom) ||
             string.IsNullOrWhiteSpace(newMember.Prenom))
         {
-            throw new ArgumentException("Email, nom, et prénom sont nécessaire pour la création d'un nouveau membre.", nameof(newMember));
+            throw new ArgumentException("Email, nom et prénom sont nécessaires pour la création d'un nouveau membre.", nameof(newMember));
         }
-        
-        if (_membreRepository.GetAllMembers().Any(m => m.Email.Equals(newMember.Email, StringComparison.OrdinalIgnoreCase)))
+
+        // Utilisation correcte de la méthode asynchrone du repository pour vérifier l'existence par email
+        // Note: Vous devriez ajouter une méthode ExistsByEmailAsync à IMembreRepository et MembreRepository.
+        // Si non disponible, la solution fallback est moins performante mais fonctionnelle :
+        var allMembers = await _membreRepository.GetAllMembersAsync();
+        if (allMembers.Any(m => m.Email.Equals(newMember.Email, StringComparison.OrdinalIgnoreCase)))
         {
-            throw new InvalidOperationException($"un membre avec le même mail '{newMember.Email}' existe déjà.");
+             throw new InvalidOperationException($"Un membre avec le même email '{newMember.Email}' existe déjà.");
         }
-       string passwordHash = BCrypt.Net.BCrypt.HashPassword(dataPassword);
-       newMember.MotDePasse = passwordHash;
-       _membreRepository.AddMember(newMember);
-       return newMember;
+        // Solution préférée si vous ajoutez ExistsByEmailAsync à votre repository:
+        // if (await _membreRepository.ExistsByEmailAsync(newMember.Email))
+        // {
+        //     throw new InvalidOperationException($"Un membre avec le même email '{newMember.Email}' existe déjà.");
+        // }
+        
+        string passwordHash = BCrypt.Net.BCrypt.HashPassword(dataPassword);
+        newMember.MotDePasse = passwordHash;
+        
+        await _membreRepository.AddMemberAsync(newMember);
+        await _context.SaveChangesAsync(); // Sauvegarde asynchrone des changements
+
+        return newMember;
     }
 
-    public Membre UpdateMember(int id, Membre updatedMember)
+    public async Task<Membre?> UpdateMemberAsync(int id, Membre updatedMember)
     {
-        if(updatedMember == null) throw new ArgumentException(nameof(updatedMember));
-        if (id <= 0) throw new ArgumentException(nameof(id));
-        if(id != updatedMember.Id) throw new ArgumentException(nameof(updatedMember));
-        var existingMember = _membreRepository.GetMember(id);
-        if(existingMember == null) throw new ArgumentException(nameof(id));
+        if (updatedMember == null)
+        {
+            throw new ArgumentNullException(nameof(updatedMember), "Les données du membre mis à jour ne peuvent être nulles.");
+        }
+        if (id <= 0)
+        {
+            throw new ArgumentException("L'ID du membre doit être supérieur à zéro.", nameof(id));
+        }
+        if (id != updatedMember.Id)
+        {
+            throw new ArgumentException("L'ID de l'URL ne correspond pas à l'ID du membre fourni.", nameof(id));
+        }
         
+        var existingMember = await _membreRepository.GetMemberAsync(id);
+        if (existingMember == null)
+        {
+            return null; // Retourne null si le membre n'existe pas, cohérent avec l'interface.
+        }
+        
+        // Mettre à jour les propriétés de l'entité existante
         existingMember.Nom = updatedMember.Nom;
         existingMember.Email = updatedMember.Email;
         existingMember.Prenom = updatedMember.Prenom;
-        _membreRepository.UpdateMember(existingMember);
-        return updatedMember;
+        // Ne pas copier le mot de passe ici, il est géré par UpdatePasswordMemberAsync
+
+        await _membreRepository.UpdateMemberAsync(existingMember);
+        await _context.SaveChangesAsync(); // Sauvegarde asynchrone des changements
+
+        return existingMember; // Retourne l'entité mise à jour
     }
 
-    public Membre UpdatePasswordMember(int id, string oldPassword, string newPassword)
+    public async Task<Membre?> UpdatePasswordMemberAsync(int id, string oldPassword, string newPassword)
     {
-        if(id <= 0) throw new ArgumentException(nameof(id));
+        if (id <= 0)
+        {
+            throw new ArgumentException("L'ID du membre doit être supérieur à zéro.", nameof(id));
+        }
         if (string.IsNullOrWhiteSpace(oldPassword) || string.IsNullOrWhiteSpace(newPassword))
         {
-            throw new ArgumentException("les mots de passe ne peuvent être vides");
+            throw new ArgumentException("Les mots de passe ne peuvent être vides.", nameof(oldPassword)); // ou nameof(newPassword)
         }
 
         if (newPassword == oldPassword)
         {
-            throw new InvalidOperationException(
-                "le nouveau mot de passe ne peut être similaire à l'ancien mot de passe");
+            throw new InvalidOperationException("Le nouveau mot de passe ne peut être similaire à l'ancien mot de passe.");
         }
         
-        var member = _membreRepository.GetMember(id);
-        if (member == null) throw new ArgumentException(nameof(id));
+        var member = await _membreRepository.GetMemberAsync(id);
+        if (member == null)
+        {
+            return null; // Retourne null si le membre n'existe pas.
+        }
+        
+        // Vérification du mot de passe existant
         if (!BCrypt.Net.BCrypt.Verify(oldPassword, member.MotDePasse))
         {
-            throw new UnauthorizedAccessException("mot de passe incorrect !");
+            throw new UnauthorizedAccessException("Mot de passe incorrect !");
         }
+        
         member.MotDePasse = BCrypt.Net.BCrypt.HashPassword(newPassword);
-        _membreRepository.UpdateMember(member);
+        
+        await _membreRepository.UpdateMemberAsync(member);
+        await _context.SaveChangesAsync(); // Sauvegarde asynchrone des changements
+
         return member;
     }
 
-    public Membre DeleteMember(int id)
+    public async Task<Membre?> DeleteMemberAsync(int id)
     {
-        if(id <= 0) throw new ArgumentException(nameof(id));
-        var existingMember = _membreRepository.GetMember(id);
-        if(existingMember == null) throw new ArgumentException(nameof(id));
-        if (existingMember.emprunts.Any(e => e.DateRetour == null))
+        if (id <= 0)
         {
-            throw new InvalidOperationException($"Cannot delete member with ID {id} as they have active loans.");
+            throw new ArgumentException("L'ID du membre doit être supérieur à zéro.", nameof(id));
         }
 
-        var deletedMember = existingMember;
-        _membreRepository.DeleteMember(deletedMember);
-        return deletedMember;
+        var existingMember = await _membreRepository.GetMemberAsync(id);
+        if (existingMember == null)
+        {
+            return null; // Retourne null si le membre n'existe pas.
+        }
+
+        // Il faudrait charger les emprunts du membre avec le membre, potentiellement via le repository.
+        // Si votre `GetMemberAsync` n'inclut pas les emprunts, cela pourrait ne pas fonctionner.
+        // Vous pouvez aussi utiliser _empruntRepository pour vérifier.
+        // Exemple :
+        var activeLoans = await _empruntRepository.GetEmpruntsByMembreIdAsync(id);
+        if (activeLoans.Any(e => e.DateRetour == null)) // Vérifie les emprunts non encore retournés
+        {
+            throw new InvalidOperationException($"Impossible de supprimer le membre avec l'ID {id} car il a des emprunts actifs en cours.");
+        }
+
+        await _membreRepository.DeleteMemberAsync(existingMember);
+        await _context.SaveChangesAsync(); // Sauvegarde asynchrone des changements
+
+        return existingMember; // Retourne le membre qui a été supprimé
     }
 
-    public bool MemberExists(int id)
+    public async Task<bool> MemberExistsAsync(int id)
     {
-        return _membreRepository.CheckIfMemberExists(id);
+        return await _membreRepository.CheckIfMemberExistsAsync(id);
     }
 }

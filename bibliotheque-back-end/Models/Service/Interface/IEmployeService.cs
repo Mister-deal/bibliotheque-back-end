@@ -2,18 +2,17 @@
 
 public interface IEmployeService
 {
-    IEnumerable<Employe> GetAllEmployees();
-    Employe GetEmployeeById(int id);
-    Employe GetEmployeeByEmail(string email);
+    Task<IEnumerable<Employe>> GetAllEmployeesAsync();
+    Task<Employe?> GetEmployeeByIdAsync(int id);
+    Task<Employe?> GetEmployeeByEmailAsync(string email);
     
-    Employe AddEmployee(Employe newEmployee, string dataPassword);
+    Task<Employe> AddEmployeeAsync(Employe newEmployee, string dataPassword);
     
-    Employe UpdateEmployee(int id, Employe updatedEmployee);
-    Employe UpdateEmployeeRole(int id, Role updatedRole);
-    Employe UpdateEmployeePassword(int id, string oldPassword, string newPassword);
+    Task<Employe> UpdateEmployeeAsync(int id, Employe updatedEmployee);
+    Task<Employe> UpdateEmployeeRoleAsync(int id, Role updatedRole);
+    Task<Employe> UpdateEmployeePasswordAsync(int id, string oldPassword, string newPassword);
 
-    Employe DeleteEmployee(int id);
+    Task<Employe> DeleteEmployeeAsync(int id);
     
-    bool EmployeeExists(int id);
-    
+    Task<bool> EmployeeExistsAsync(int id);
 }

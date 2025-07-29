@@ -26,7 +26,7 @@ namespace bibliotheque_back_end.Controllers
         [SwaggerResponse(200, "Liste des livres retournée avec succès", typeof(IEnumerable<Livre>))]
         public ActionResult<IEnumerable<Livre>> GetLivres()
         {
-            var livres = _livreService.GetAllBooks();
+            var livres = _livreService.GetAllBooksAsync();
             return Ok(livres);
         }
 
@@ -42,7 +42,7 @@ namespace bibliotheque_back_end.Controllers
         {
             try
             {
-                var livre = _livreService.GetBookById(id);
+                var livre = _livreService.GetBookByIdAsync(id);
                 return Ok(livre);
             }
             catch (KeyNotFoundException)
@@ -69,7 +69,7 @@ namespace bibliotheque_back_end.Controllers
 
             try
             {
-                var created = _livreService.AddNewBook(livre);
+                var created = _livreService.AddNewBookAsync(livre);
                 return CreatedAtAction(nameof(GetLivre), new { id = created.Id }, created);
             }
             catch (ArgumentException ex) { return BadRequest(ex.Message); }
@@ -92,7 +92,7 @@ namespace bibliotheque_back_end.Controllers
             {
                 // on s’aligne sur l’id de la route (et on ignore tout id dans le body)
                 livre.Id = id;
-                _livreService.UpdateBook(id, livre);
+                _livreService.UpdateBookAsync(id, livre);
                 return NoContent();
             }
             catch (KeyNotFoundException) { return NotFound(); }
@@ -111,7 +111,7 @@ namespace bibliotheque_back_end.Controllers
         {
             try
             {
-                _livreService.DeleteBook(id);
+                _livreService.DeleteBookAsync(id);
                 return NoContent();
             }
             catch (KeyNotFoundException)

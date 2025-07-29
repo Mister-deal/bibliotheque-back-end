@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace bibliotheque_back_end.Models.repositery;
 
-public class ReservationRepository: IReservationRepository
+public class ReservationRepository : IReservationRepository
 {
     private readonly BibliothequeDb _context;
 
@@ -12,33 +12,51 @@ public class ReservationRepository: IReservationRepository
         _context = context;
     }
 
-    public IEnumerable<Reservation> GetAllReservations()
+    public async Task<IEnumerable<Reservation>> GetAllReservationsAsync()
     {
-        return _context.Reservations.Include(r => r.Membre).Include(r => r.Livre).ToList();
+        // Utilise ToListAsync() pour récupérer toutes les réservations de manière asynchrone,
+        // en incluant les entités Membre et Livre associées.
+        return await _context.Reservations
+                             .Include(r => r.Membre)
+                             .Include(r => r.Livre)
+                             .ToListAsync();
     }
 
-    public Reservation GetReservation(int id)
+    public async Task<Reservation?> GetReservationAsync(int id)
     {
-        return _context.Reservations.Include(r => r.Membre).Include(r => r.Livre).FirstOrDefault(r => r.Id == id);
+        // Utilise FirstOrDefaultAsync() pour récupérer une réservation spécifique de manière asynchrone,
+        // en incluant les entités associées.
+        return await _context.Reservations
+                             .Include(r => r.Membre)
+                             .Include(r => r.Livre)
+                             .FirstOrDefaultAsync(r => r.Id == id);
     }
 
-    public void CreateReservation(Reservation reservation)
+    public async Task CreateReservationAsync(Reservation reservation)
     {
-        _context.Reservations.Add(reservation);
+        // Utilise AddAsync() pour ajouter l'entité de manière asynchrone.
+        await _context.Reservations.AddAsync(reservation);
+        // Rappel : les modifications devront être sauvegardées via _context.SaveChangesAsync() depuis la couche de service.
     }
 
-    public void UpdateReservation(Reservation reservation)
+    public Task UpdateReservationAsync(Reservation reservation)
     {
+        // Update() est synchrone car il ne fait que modifier l'état de l'entité en mémoire.
+        // La persistance réelle se produit avec SaveChangesAsync() (à appeler depuis le service).
         _context.Reservations.Update(reservation);
+        return Task.CompletedTask; // Retourne un Task complété.
     }
 
-    public void DeleteReservation(Reservation reservation)
+    public Task DeleteReservationAsync(Reservation reservation)
     {
+        // Remove() est synchrone.
         _context.Reservations.Remove(reservation);
+        return Task.CompletedTask; // Retourne un Task complété.
     }
 
-    public bool CheckIfReservationExists(int id)
+    public async Task<bool> CheckIfReservationExistsAsync(int id)
     {
-        return _context.Reservations.Any(e => e.Id == id);
+        // Utilise AnyAsync() pour vérifier l'existence de manière asynchrone.
+        return await _context.Reservations.AnyAsync(e => e.Id == id);
     }
 }
