@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace bibliotheque_back_end.Controllers.WEB;
 
-public class EmpruntWebController : Controller // Inherits from Controller
+public class EmpruntWebController : Controller
 {
     private readonly IEmpruntService _empruntService;
-    private readonly IMembreService _membreService; // Needed for dropdowns in forms
-    private readonly ILivreService _livreService; // Needed for dropdowns in forms
-    private readonly IEmployeService _employeService; // Needed for employee validation ID
+    private readonly IMembreService _membreService;
+    private readonly ILivreService _livreService;
+    private readonly IEmployeService _employeService;
 
     public EmpruntWebController(
         IEmpruntService empruntService,
@@ -23,21 +23,19 @@ public class EmpruntWebController : Controller // Inherits from Controller
         _livreService = livreService;
         _employeService = employeService;
     }
-
-    // --- Actions for listing emprunts ---
-
+    
     // GET: /EmpruntWeb/Index
     public async Task<IActionResult> Index()
     {
         try
         {
             var emprunts = await _empruntService.GetAllEmpruntsAsync();
-            return View(emprunts); // Pass the list of emprunts to the Views/EmpruntWeb/Index.cshtml view
+            return View(emprunts);
         }
         catch (Exception ex)
         {
             ViewBag.ErrorMessage = $"Une erreur est survenue lors du chargement des emprunts : {ex.Message}";
-            return View(new List<Emprunt>()); // Return an empty list with an error message
+            return View(new List<Emprunt>());
         }
     }
 
@@ -55,9 +53,7 @@ public class EmpruntWebController : Controller // Inherits from Controller
             return View("Index", new List<Emprunt>());
         }
     }
-
-    // --- Actions for emprunt details ---
-
+    
     // GET: /EmpruntWeb/Details/{id}
     public async Task<IActionResult> Details(int id)
     {
@@ -74,7 +70,7 @@ public class EmpruntWebController : Controller // Inherits from Controller
                 return NotFound($"Emprunt avec l'ID {id} non trouvé.");
             }
 
-            return View(emprunt); // Pass the Emprunt object to the Views/EmpruntWeb/Details.cshtml view
+            return View(emprunt);
         }
         catch (ArgumentException ex)
         {
@@ -87,28 +83,24 @@ public class EmpruntWebController : Controller // Inherits from Controller
             return View("Error");
         }
     }
-
-    // --- Actions for creating an emprunt ---
-
+    
     // GET: /EmpruntWeb/Create
     public async Task<IActionResult> Create()
     {
-        // For dropdowns in the form, load members and books
         ViewBag.Membres = await _membreService.GetAllMembersAsync();
         ViewBag.Livres = await _livreService.GetAllBooksAsync();
-        ViewBag.Employes = await _employeService.GetAllEmployeesAsync(); // Assuming GetAllEmployeesAsync exists
+        ViewBag.Employes = await _employeService.GetAllEmployeesAsync();
 
-        return View(new EmpruntCreateViewModel()); // Pass an empty ViewModel to the creation form
+        return View(new EmpruntCreateViewModel());
     }
 
     // POST: /EmpruntWeb/Create
     [HttpPost]
-    [ValidateAntiForgeryToken] // Protects against CSRF attacks
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([FromForm] EmpruntCreateViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            // If model state is invalid, reload dropdown data before returning the view
             ViewBag.Membres = await _membreService.GetAllMembersAsync();
             ViewBag.Livres = await _livreService.GetAllBooksAsync();
             ViewBag.Employes = await _employeService.GetAllEmployeesAsync();
@@ -150,11 +142,8 @@ public class EmpruntWebController : Controller // Inherits from Controller
         ViewBag.Employes = await _employeService.GetAllEmployeesAsync();
         return View(model);
     }
-
-    // --- Actions for returning books ---
-
+    
     // GET: /EmpruntWeb/ReturnBook/{empruntId}/{livreId} (Optional, could be combined with ReturnAll)
-    // This GET action would show a confirmation page for returning a specific book.
     public async Task<IActionResult> ReturnBook(int empruntId, int livreId)
     {
         try
@@ -222,7 +211,6 @@ public class EmpruntWebController : Controller // Inherits from Controller
     }
 
     // GET: /EmpruntWeb/ReturnAll/{empruntId}
-    // This GET action would show a confirmation page for returning all books in a loan.
     public async Task<IActionResult> ReturnAll(int empruntId)
     {
         try
@@ -230,10 +218,10 @@ public class EmpruntWebController : Controller // Inherits from Controller
             var emprunt = await _empruntService.GetEmpruntByIdAsync(empruntId);
             if (emprunt == null) return NotFound($"Emprunt avec l'ID {empruntId} non trouvé.");
 
-            if (emprunt.DateRetour.HasValue) // Loan already returned
+            if (emprunt.DateRetour.HasValue)
             {
                 ViewBag.ErrorMessage = "Cet emprunt est déjà marqué comme entièrement retourné.";
-                return View("Details", emprunt); // Redirect to details with message
+                return View("Details", emprunt);
             }
 
             ViewBag.Employes = await _employeService.GetAllEmployeesAsync();
@@ -293,9 +281,7 @@ public class EmpruntWebController : Controller // Inherits from Controller
         ViewBag.Employes = await _employeService.GetAllEmployeesAsync();
         return View(model);
     }
-
-    // --- Actions for deleting an emprunt ---
-
+    
     // GET: /EmpruntWeb/Delete/{id}
     public async Task<IActionResult> Delete(int id)
     {
@@ -311,16 +297,14 @@ public class EmpruntWebController : Controller // Inherits from Controller
             {
                 return NotFound($"Emprunt avec l'ID {id} non trouvé.");
             }
-
-            // Check if loan can be deleted (e.g., if all books are returned)
-            // This logic might be in your service.
-            if (!emprunt.DateRetour.HasValue) // If not fully returned
+            
+            if (!emprunt.DateRetour.HasValue) 
             {
                 ViewBag.ErrorMessage = "Impossible de supprimer un emprunt qui n'est pas entièrement retourné.";
-                return View("Details", emprunt); // Show details with error
+                return View("Details", emprunt);
             }
 
-            return View(emprunt); // Pass the Emprunt object to the Views/EmpruntWeb/Delete.cshtml (for confirmation)
+            return View(emprunt);
         }
         catch (ArgumentException ex)
         {
@@ -335,7 +319,7 @@ public class EmpruntWebController : Controller // Inherits from Controller
     }
 
     // POST: /EmpruntWeb/DeleteConfirmed/{id}
-    [HttpPost, ActionName("Delete")] // Mapped to the same URL as GET, but with POST
+    [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
