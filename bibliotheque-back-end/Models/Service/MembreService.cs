@@ -86,74 +86,42 @@ public class MembreService : IMembreService
         return newMember;
     }
 
-    public async Task<Membre?> UpdateMemberAsync(int id, Membre updatedMember)
-    {
-        if (updatedMember == null)
+     public async Task<Membre?> UpdateMemberAsync(int id, Membre updatedMember)
         {
-            throw new ArgumentNullException(nameof(updatedMember), "Les données du membre mis à jour ne peuvent être nulles.");
-        }
-        if (id <= 0)
-        {
-            throw new ArgumentException("L'ID du membre doit être supérieur à zéro.", nameof(id));
-        }
-        if (id != updatedMember.Id)
-        {
-            throw new ArgumentException("L'ID de l'URL ne correspond pas à l'ID du membre fourni.", nameof(id));
-        }
-        
-        var existingMember = await _membreRepository.GetMemberAsync(id);
-        if (existingMember == null)
-        {
-            return null; // Retourne null si le membre n'existe pas, cohérent avec l'interface.
-        }
-        
-        // Mettre à jour les propriétés de l'entité existante
-        existingMember.Nom = updatedMember.Nom;
-        existingMember.Email = updatedMember.Email;
-        existingMember.Prenom = updatedMember.Prenom;
-        // Ne pas copier le mot de passe ici, il est géré par UpdatePasswordMemberAsync
+            if (updatedMember == null)
+            {
+                throw new ArgumentNullException(nameof(updatedMember), "Les données du membre mis à jour ne peuvent être nulles.");
+            }
+            if (id <= 0)
+            {
+                throw new ArgumentException("L'ID du membre doit être supérieur à zéro.", nameof(id));
+            }
+            if (id != updatedMember.Id)
+            {
+                throw new ArgumentException("L'ID de l'URL ne correspond pas à l'ID du membre fourni.", nameof(id));
+            }
+            
+            var existingMember = await _membreRepository.GetMemberAsync(id);
+            if (existingMember == null)
+            {
+                return null;
+            }
+            
+            existingMember.Nom = updatedMember.Nom;
+            existingMember.Email = updatedMember.Email;
+            existingMember.Prenom = updatedMember.Prenom;
+            
+            if (!string.IsNullOrWhiteSpace(updatedMember.MotDePasse))
+            {
+                existingMember.MotDePasse = BCrypt.Net.BCrypt.HashPassword(updatedMember.MotDePasse);
+            }
 
-        await _membreRepository.UpdateMemberAsync(existingMember);
-        await _context.SaveChangesAsync(); // Sauvegarde asynchrone des changements
+            await _membreRepository.UpdateMemberAsync(existingMember);
+            await _context.SaveChangesAsync();
 
-        return existingMember; // Retourne l'entité mise à jour
-    }
-
-    public async Task<Membre?> UpdatePasswordMemberAsync(int id, string oldPassword, string newPassword)
-    {
-        if (id <= 0)
-        {
-            throw new ArgumentException("L'ID du membre doit être supérieur à zéro.", nameof(id));
+            return existingMember;
         }
-        if (string.IsNullOrWhiteSpace(oldPassword) || string.IsNullOrWhiteSpace(newPassword))
-        {
-            throw new ArgumentException("Les mots de passe ne peuvent être vides.", nameof(oldPassword)); // ou nameof(newPassword)
-        }
-
-        if (newPassword == oldPassword)
-        {
-            throw new InvalidOperationException("Le nouveau mot de passe ne peut être similaire à l'ancien mot de passe.");
-        }
-        
-        var member = await _membreRepository.GetMemberAsync(id);
-        if (member == null)
-        {
-            return null; // Retourne null si le membre n'existe pas.
-        }
-        
-        // Vérification du mot de passe existant
-        if (!BCrypt.Net.BCrypt.Verify(oldPassword, member.MotDePasse))
-        {
-            throw new UnauthorizedAccessException("Mot de passe incorrect !");
-        }
-        
-        member.MotDePasse = BCrypt.Net.BCrypt.HashPassword(newPassword);
-        
-        await _membreRepository.UpdateMemberAsync(member);
-        await _context.SaveChangesAsync(); // Sauvegarde asynchrone des changements
-
-        return member;
-    }
+     
 
     public async Task<Membre?> DeleteMemberAsync(int id)
     {

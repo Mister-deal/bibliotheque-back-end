@@ -28,16 +28,13 @@ public class EmployeRepository : IEmployeRepository
     public async Task<Employe?> GetEmployeeByEmailAsync(string email)
     {
         // Utilise FirstOrDefaultAsync() pour exécuter la requête de manière asynchrone
-        return await _context.Employes.Where(e => e.Email == email).FirstOrDefaultAsync();
-    }
+        return await _context.Employes.FirstOrDefaultAsync(e => e.Email.ToLower() == email.ToLower());    }
 
     public async Task AddEmployeeAsync(Employe emp)
     {
         // Utilise AddAsync() pour ajouter une entité de manière asynchrone
         await _context.Employes.AddAsync(emp);
         // Important : Les changements ne sont pas persistés ici.
-        // Ils devront être persistés par un appel à _context.SaveChangesAsync()
-        // depuis la couche de service ou une unité de travail.
     }
 
     public Task UpdateEmployeeAsync(Employe emp)
@@ -65,6 +62,5 @@ public class EmployeRepository : IEmployeRepository
     {
         // Utilise AnyAsync() directement sur le DbSet (IQueryable) pour que la vérification
         // soit effectuée au niveau de la base de données.
-        return await _context.Employes.AnyAsync(e => e.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-    }
+        return await _context.Employes.AnyAsync(e => e.Email.ToLower() == email.ToLower());    }
 }

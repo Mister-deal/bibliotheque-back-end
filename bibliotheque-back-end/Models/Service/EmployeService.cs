@@ -97,93 +97,43 @@ public class EmployeService : IEmployeService
         {
             throw new ArgumentException("L'ID de l'employé doit être supérieur à zéro.", nameof(id));
         }
-        // Vérifiez la correspondance des IDs ici si nécessaire. L'interface ne l'exige pas explicitement,
-        // mais c'est une bonne pratique si l'ID de l'URL est la source de vérité.
         if (id != updatedEmployee.Id)
         {
-             throw new ArgumentException("L'ID de l'URL ne correspond pas à l'ID de l'employé fourni.", nameof(updatedEmployee));
+            throw new ArgumentException("L'ID de l'URL ne correspond pas à l'ID de l'employé fourni.", nameof(updatedEmployee));
         }
 
         var existingEmployee = await _repository.GetEmployeeAsync(id);
         if (existingEmployee == null)
         {
-            // Retourne null si l'employé n'existe pas, cohérent avec l'interface.
             return null;
         }
         
-        // Mettre à jour les propriétés de l'entité existante
-        // Attention: ne pas copier directement le MotDePasse si vous ne le mettez pas à jour ici.
-        // updatedEmployee.MotDePasse; // Ne pas toucher au mot de passe ici à moins de le gérer explicitement
         existingEmployee.Nom = updatedEmployee.Nom;
-        existingEmployee.Email = updatedEmployee.Email;
         existingEmployee.Prenom = updatedEmployee.Prenom;
-        // Gérer le rôle si nécessaire, ex: existingEmployee.Role = updatedEmployee.Role;
-
-        await _repository.UpdateEmployeeAsync(existingEmployee);
-        await _context.SaveChangesAsync(); // Sauvegarde asynchrone des changements
-
-        return existingEmployee; // Retourne l'entité mise à jour depuis la base de données
-    }
-
-    public async Task<Employe?> UpdateEmployeeRoleAsync(int id, Role updatedRole)
-    {
-        if (id <= 0)
+        existingEmployee.Email = updatedEmployee.Email;
+        
+        if (existingEmployee.Role != updatedEmployee.Role)
         {
-            throw new ArgumentException("L'ID de l'employé doit être supérieur à zéro.", nameof(id));
-        }
-        // Vérifier si le rôle est une valeur d'enum valide si nécessaire
-        // if (!Enum.IsDefined(typeof(Role), updatedRole)) { throw new ArgumentOutOfRangeException(nameof(updatedRole), "Rôle non valide."); }
-
-        var existingEmployee = await _repository.GetEmployeeAsync(id);
-        if (existingEmployee == null)
-        {
-            return null; // Retourne null si l'employé n'existe pas.
+            existingEmployee.Role = updatedEmployee.Role;
         }
         
-        existingEmployee.Role = updatedRole; // Mise à jour directe du rôle
         
+        if (!string.IsNullOrWhiteSpace(updatedEmployee.MotDePasse) &&
+            updatedEmployee.MotDePasse != existingEmployee.MotDePasse) // Compare against existing for changes, but ensure it's hashed later
+        {
+            // Validate the new password format if necessary (e.g., using a regular expression)
+            // This validation typically happens at the DTO or model level using data annotations.
+
+            // Hash the new password before storing it
+            existingEmployee.MotDePasse = BCrypt.Net.BCrypt.HashPassword(updatedEmployee.MotDePasse);
+        }
+
         await _repository.UpdateEmployeeAsync(existingEmployee);
-        await _context.SaveChangesAsync(); // Sauvegarde asynchrone des changements
+        await _context.SaveChangesAsync();
 
         return existingEmployee;
     }
-
-    public async Task<Employe?> UpdateEmployeePasswordAsync(int id, string oldPassword, string newPassword)
-    {
-        if (id <= 0)
-        {
-            throw new ArgumentException("L'ID de l'employé doit être supérieur à zéro.", nameof(id));
-        }
-        if (string.IsNullOrWhiteSpace(oldPassword) || string.IsNullOrWhiteSpace(newPassword))
-        {
-            throw new ArgumentException("Les mots de passe ne peuvent être vides.", nameof(oldPassword)); // ou nameof(newPassword)
-        }
-
-        if (newPassword == oldPassword)
-        {
-            throw new InvalidOperationException("Le nouveau mot de passe ne peut être similaire à l'ancien mot de passe.");
-        }
-        
-        var employee = await _repository.GetEmployeeAsync(id);
-        if (employee == null)
-        {
-            return null; // Retourne null si l'employé n'existe pas.
-        }
-        
-        // Vérification du mot de passe existant
-        if (!BCrypt.Net.BCrypt.Verify(oldPassword, employee.MotDePasse))
-        {
-            throw new UnauthorizedAccessException("Mot de passe incorrect !");
-        }
-        
-        employee.MotDePasse = BCrypt.Net.BCrypt.HashPassword(newPassword);
-        
-        await _repository.UpdateEmployeeAsync(employee);
-        await _context.SaveChangesAsync(); // Sauvegarde asynchrone des changements
-
-        return employee;
-    }
-
+    
     public async Task<Employe?> DeleteEmployeeAsync(int id)
     {
         if (id <= 0)

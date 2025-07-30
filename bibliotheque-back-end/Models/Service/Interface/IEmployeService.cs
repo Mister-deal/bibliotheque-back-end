@@ -8,11 +8,8 @@ public interface IEmployeService
     
     Task<Employe> AddEmployeeAsync(Employe newEmployee, string dataPassword);
     
-    Task<Employe> UpdateEmployeeAsync(int id, Employe updatedEmployee);
-    Task<Employe> UpdateEmployeeRoleAsync(int id, Role updatedRole);
-    Task<Employe> UpdateEmployeePasswordAsync(int id, string oldPassword, string newPassword);
-
-    Task<Employe> DeleteEmployeeAsync(int id);
+    Task<Employe?> UpdateEmployeeAsync(int id, Employe updatedEmployee);
+    Task<Employe?> DeleteEmployeeAsync(int id);
     
     Task<bool> EmployeeExistsAsync(int id);
 }
