@@ -2,13 +2,14 @@
 
 public interface IEmpruntRepository
 {
-    IEnumerable<Emprunt> GetAllEmprunts();
-    Emprunt GetEmpruntById(int id);
-    void AddEmprunt(Emprunt emprunt);
-    void UpdateEmprunt(Emprunt emprunt);
-    void DeleteEmprunt(Emprunt emprunt);
-    bool CheckIfEmpruntExists(int id);
+    Task<IEnumerable<Emprunt>> GetAllEmpruntsAsync();
+    Task<Emprunt?> GetEmpruntByIdAsync(int id);
+    Task AddEmpruntAsync(Emprunt emprunt);
+    Task UpdateEmpruntAsync(Emprunt emprunt);
+    Task DeleteEmpruntAsync(Emprunt emprunt);
+    Task<bool> CheckIfEmpruntExistsAsync(int id);
     
-    Emprunt GetEmpruntWithBooks(int id);
-    IEnumerable<Emprunt> GetEmpruntsContainingBook(int livreId);
+    Task<Emprunt?> GetEmpruntWithBooksAsync(int id); // Pour inclure les entités liées
+    Task<IEnumerable<Emprunt>> GetEmpruntsContainingBookAsync(int livreId);
+    Task<IEnumerable<Emprunt>> GetEmpruntsByMembreIdAsync(int membreId); 
 }

@@ -39,12 +39,19 @@ var connectionString = $"Host=localhost;Database=bibliotheque_db;Username=postgr
 builder.Services.AddDbContext<BibliothequeDb>(options =>
     options.UseNpgsql(connectionString));
 
-// Services
+// Enregistrement des services de la couche 'Service'
+builder.Services.AddScoped<IEmployeService, EmployeService>();
+builder.Services.AddScoped<IEmpruntService, EmpruntService>();
 builder.Services.AddScoped<ILivreService, LivreService>();
+builder.Services.AddScoped<IMembreService, MembreService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
 
-// Repositories
-builder.Services.AddScoped<ILivreRepository, LivreRepository>();
+// Enregistrement des services de la couche 'Repository'
+builder.Services.AddScoped<IEmployeRepository, EmployeRepository>();
 builder.Services.AddScoped<IEmpruntRepository, EmpruntRepository>();
+builder.Services.AddScoped<ILivreRepository, LivreRepository>();
+builder.Services.AddScoped<IMembreRepository, MembreRepository>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 
 
 var app = builder.Build();
@@ -123,7 +130,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Biblitheque-Simplon v1");
-        c.RoutePrefix = "";
+        //c.RoutePrefix = ""; est responsable du swagger qui se lance au démarrage en route principale
     });
 }
 

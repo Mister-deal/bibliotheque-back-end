@@ -2,10 +2,10 @@
 
 public interface IReservationRepository
 {
-    IEnumerable<Reservation> GetAllReservations();
-    Reservation GetReservation(int id);
-    void CreateReservation(Reservation reservation);
-    void UpdateReservation(Reservation reservation);
-    void DeleteReservation(Reservation reservation);
-    bool CheckIfReservationExists(int id);
+    Task<IEnumerable<Reservation>> GetAllReservationsAsync();
+    Task<Reservation?> GetReservationAsync(int id);
+    Task CreateReservationAsync(Reservation reservation);
+    Task UpdateReservationAsync(Reservation reservation);
+    Task DeleteReservationAsync(Reservation reservation);
+    Task<bool> CheckIfReservationExistsAsync(int id);
 }

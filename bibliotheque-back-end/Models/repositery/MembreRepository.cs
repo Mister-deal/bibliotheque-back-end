@@ -1,8 +1,9 @@
 ﻿using bibliotheque_back_end.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace bibliotheque_back_end.Models.repositery;
 
-public class MembreRepository: IMembreRepository
+public class MembreRepository : IMembreRepository
 {
     private readonly BibliothequeDb _context;
 
@@ -11,38 +12,49 @@ public class MembreRepository: IMembreRepository
         _context = context;
     }
 
-    public IEnumerable<Membre> GetAllMembers()
+    public async Task<IEnumerable<Membre>> GetAllMembersAsync()
     {
-        return _context.Membres.ToList();
+        // Utilise ToListAsync() pour récupérer tous les membres de manière asynchrone.
+        return await _context.Membres.ToListAsync();
     }
 
-    public Membre GetMember(int id)
+    public async Task<Membre?> GetMemberAsync(int id)
     {
-       return _context.Membres.Find(id);
+        // Utilise FindAsync() pour rechercher un membre par clé primaire de manière asynchrone.
+        return await _context.Membres.FindAsync(id);
     }
 
-    public Membre GetMemberByEmail(string email)
+    public async Task<Membre?> GetMemberByEmailAsync(string email)
     {
-        return _context.Membres.Where(e => e.Email == email).FirstOrDefault();
+        // Utilise FirstOrDefaultAsync() pour exécuter la requête de manière asynchrone.
+        return await _context.Membres.Where(e => e.Email == email).FirstOrDefaultAsync();
     }
 
-    public void AddMember(Membre member)
+    public async Task AddMemberAsync(Membre member)
     {
-        _context.Membres.Add( member);
+        // Utilise AddAsync() pour ajouter l'entité de manière asynchrone.
+        await _context.Membres.AddAsync(member);
+        // Rappel : les changements devront être sauvegardés via _context.SaveChangesAsync() depuis le service.
     }
 
-    public void UpdateMember(Membre member)
+    public Task UpdateMemberAsync(Membre member)
     {
+        // Update() est synchrone car il modifie l'état de l'entité en mémoire.
+        // La persistance réelle se fera lors de l'appel asynchrone à SaveChangesAsync() ailleurs.
         _context.Membres.Update(member);
+        return Task.CompletedTask; // Retourne un Task complété.
     }
 
-    public void DeleteMember(Membre member)
+    public Task DeleteMemberAsync(Membre member)
     {
+        // Remove() est synchrone.
         _context.Membres.Remove(member);
+        return Task.CompletedTask; // Retourne un Task complété.
     }
 
-    public bool CheckIfMemberExists(int id)
+    public async Task<bool> CheckIfMemberExistsAsync(int id)
     {
-        return _context.Membres.Any(e => e.Id == id);
+        // Utilise AnyAsync() pour vérifier l'existence de manière asynchrone.
+        return await _context.Membres.AnyAsync(e => e.Id == id);
     }
 }

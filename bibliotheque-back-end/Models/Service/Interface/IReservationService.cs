@@ -2,21 +2,19 @@
 
 public interface IReservationService
 {
-    IEnumerable<Reservation> GetAllReservations();
-    Reservation GetReservation(int id);
+    Task<IEnumerable<Reservation>> GetAllReservationsAsync();
+    Task<Reservation?> GetReservationAsync(int id); // Peut retourner null si non trouvée
     
-    IEnumerable<Reservation> GetActiveReservations(); // Réservations non encore honorées ou annulées
-    IEnumerable<Reservation> GetReservationsByMembreId(int membreId);
-    IEnumerable<Reservation> GetReservationsByLivreId(int livreId);
+    Task<IEnumerable<Reservation>> GetActiveReservationsAsync(); // Réservations non encore honorées ou annulées
+    Task<IEnumerable<Reservation>> GetReservationsByMembreIdAsync(int membreId);
+    Task<IEnumerable<Reservation>> GetReservationsByLivreIdAsync(int livreId);
     
-    bool HasActiveReservation(int membreId, int livreId);
+    Task<bool> HasActiveReservationAsync(int membreId, int livreId);
     
-    Reservation CreateReservation(int membreId, int livreId);
-    Reservation FulfillReservation(int reservationId);
-
-    Reservation CancelReservation(int reservationId);
-    Reservation DeleteReservation(int id);
+    Task<Reservation> CreateReservationAsync(int membreId, int livreId);
+    Task<Reservation?> FulfillReservationAsync(int reservationId); // Peut retourner null si non trouvée ou échec
+    Task<Reservation?> CancelReservationAsync(int reservationId); // Peut retourner null si non trouvée ou échec
+    Task<Reservation?> DeleteReservationAsync(int id); // Peut retourner null si non trouvée ou échec
     
-    bool ReservationExists(int id);
-
+    Task<bool> ReservationExistsAsync(int id);
 }

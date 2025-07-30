@@ -2,10 +2,10 @@
 
 public interface ILivreService
 {
-    IEnumerable<Livre> GetAllBooks();
-    Livre GetBookById(int id);
-    Livre AddNewBook(Livre newBook);
-    Livre UpdateBook(int id, Livre updatedBook);
-    void  DeleteBook(int id);
-    IEnumerable<Livre> GetAvailableBooks();
+    Task<IEnumerable<Livre>> GetAllBooksAsync();
+    Task<Livre?> GetBookByIdAsync(int id); // Peut retourner null si non trouvé
+    Task<Livre> AddNewBookAsync(Livre newBook);
+    Task<Livre?> UpdateBookAsync(int id, Livre updatedBook); // Peut retourner null si non trouvé
+    Task DeleteBookAsync(int id); // Retourne un Task car l'opération est asynchrone
+    Task<IEnumerable<Livre>> GetAvailableBooksAsync();
 }

@@ -2,16 +2,14 @@
 
 public interface IMembreService
 {
-    IEnumerable<Membre> GetAllMembers();
-    Membre GetMemberById(int id);
-    Membre GetMemberByEmail(string email);
+    Task<IEnumerable<Membre>> GetAllMembersAsync();
+    Task<Membre?> GetMemberByIdAsync(int id); // Peut retourner null si non trouvé
+    Task<Membre?> GetMemberByEmailAsync(string email); // Peut retourner null si non trouvé
     
-    Membre AddMember(Membre newMember, string dataPassword);
+    Task<Membre> AddMemberAsync(Membre newMember, string dataPassword);
     
-    Membre UpdateMember(int id, Membre updatedMember);
-    Membre UpdatePasswordMember(int id, string oldPassword, string newPassword);
-
-    Membre DeleteMember(int id);
+    Task<Membre?> UpdateMemberAsync(int id, Membre updatedMember); // Peut retourner null si non trouvé
+    Task<Membre?> DeleteMemberAsync(int id); // Peut retourner null si non trouvé
     
-    bool MemberExists(int id);
+    Task<bool> MemberExistsAsync(int id);
 }

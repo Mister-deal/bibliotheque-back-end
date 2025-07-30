@@ -2,11 +2,11 @@
 
 public interface IMembreRepository
 {
-    IEnumerable<Membre> GetAllMembers();
-    Membre GetMember(int id);
-    Membre GetMemberByEmail(string email);
-    void AddMember(Membre member);
-    void UpdateMember(Membre member);
-    void DeleteMember(Membre member);
-    bool CheckIfMemberExists(int id);
+    Task<IEnumerable<Membre>> GetAllMembersAsync();
+    Task<Membre?> GetMemberAsync(int id);
+    Task<Membre?> GetMemberByEmailAsync(string email);
+    Task AddMemberAsync(Membre member);
+    Task UpdateMemberAsync(Membre member);
+    Task DeleteMemberAsync(Membre member);
+    Task<bool> CheckIfMemberExistsAsync(int id);
 }
