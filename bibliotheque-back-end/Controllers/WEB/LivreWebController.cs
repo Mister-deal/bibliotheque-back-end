@@ -83,6 +83,10 @@ public class LivreWebController : Controller // Hérite de Controller, pas de Co
                     Titre = model.Titre,
                     Auteur = model.Auteur,
                     AnneePublication = model.AnneePublication,
+                    Description = model.Description,
+                    Editeur = model.Editeur,
+                    Etat = model.EtatLivre,
+                    Categorie = model.Categorie,
                 };
 
                 var createdLivre = await _livreService.AddNewBookAsync(newLivre);
