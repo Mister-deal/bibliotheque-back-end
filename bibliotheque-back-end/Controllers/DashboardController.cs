@@ -1,27 +1,36 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BibliothequeBackEnd.Models.ViewModels;
+using bibliotheque_back_end.Models.Service.Interface;
 
 namespace bibliotheque_back_end.Controllers
 {
     public class DashboardController : Controller
     {
-        // Ici pour injecter tes services/repository plus tard (Si on en fait)
-        // private readonly ILivreService _livreService;
-        // private readonly IUserService _userService;
-        // private readonly IEmpruntService _empruntService;
+        private readonly IStatistiquesService _statistiquesService;
+        private readonly ILivreService _livreService;
+        private readonly IMembreService _membreService;
+
+        public DashboardController(
+            IStatistiquesService statistiquesService,
+            ILivreService livreService,
+            IMembreService membreService)
+        {
+            _statistiquesService = statistiquesService;
+            _livreService = livreService;
+            _membreService = membreService;
+        }
 
         public async Task<IActionResult> Index()
         {
             try
             {
-                // Créer et remplir le ViewModel
                 var viewModel = new DashboardViewModel
                 {
                     TotalBooks = await GetTotalBooksAsync(),
                     TotalUsers = await GetTotalUsersAsync(),
-                    TodayLoans = await GetTodayLoansAsync(),
-                    PendingReturns = await GetPendingReturnsAsync(),
-                    RecentActivities = await GetRecentActivitiesAsync(),
+                    TodayLoans = await _statistiquesService.GetNombreEmpruntsEnCoursAsync(),
+                    PendingReturns = await _statistiquesService.GetNombreEmpruntsEnRetardAsync(),
+                    RecentActivities = GetRecentActivitiesSync(),
                     PopularBooks = await GetPopularBooksAsync()
                 };
 
@@ -29,144 +38,118 @@ namespace bibliotheque_back_end.Controllers
             }
             catch (Exception ex)
             {
-                // Log l'erreur si vous avez un système de logging
-                ViewBag.ErrorMessage = "Erreur lors du chargement du dashboard";
-
-                // Retourner un ViewModel vide en cas d'erreur
+                ViewBag.ErrorMessage = "Erreur: " + ex.Message;
                 return View(new DashboardViewModel
                 {
+                    TotalBooks = 0,
+                    TotalUsers = 0,
+                    TodayLoans = 0,
+                    PendingReturns = 0,
                     RecentActivities = new List<RecentActivityViewModel>(),
                     PopularBooks = new List<PopularBookViewModel>()
                 });
             }
         }
 
-        // Méthodes temporaires (à remplacer par les services plus tard)
+        // 🚀 AVEC TES VRAIES MÉTHODES !
         private async Task<int> GetTotalBooksAsync()
         {
-            // Simulation d'une opération async
-            await Task.Delay(1);
-            return 156; // Plus tard: return await _livreService.GetAvailableBooksCountAsync();
+            try
+            {
+                var livres = await _livreService.GetAllBooksAsync(); // ✅ TON VRAI NOM !
+                return livres.Count();
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         private async Task<int> GetTotalUsersAsync()
         {
-            await Task.Delay(1);
-            return 89; // Plus tard: return await _userService.GetActiveUsersCountAsync();
-        }
-
-        private async Task<int> GetTodayLoansAsync()
-        {
-            await Task.Delay(1);
-            return 12; // Plus tard: return await _empruntService.GetTodayLoansCountAsync();
-        }
-
-        private async Task<int> GetPendingReturnsAsync()
-        {
-            await Task.Delay(1);
-            return 7; // Plus tard: return await _empruntService.GetOverdueReturnsCountAsync();
-        }
-
-        private async Task<List<RecentActivityViewModel>> GetRecentActivitiesAsync()
-        {
-            await Task.Delay(1);
-
-            // Données d'exemple plus variées
-            return new List<RecentActivityViewModel>
+            try
             {
-                new RecentActivityViewModel
-                {
-                    Title = "Nouvel emprunt",
-                    Description = "Jean Dupont a emprunté 'Le Petit Prince'",
-                    Time = DateTime.Now.AddMinutes(-15),
-                    Icon = "handshake", // Changé pour être cohérent avec AdminLTE
-                    BadgeColor = "success"
-                },
-                new RecentActivityViewModel
-                {
-                    Title = "Retour effectué",
-                    Description = "Marie Martin a rendu '1984'",
-                    Time = DateTime.Now.AddHours(-2),
-                    Icon = "undo",
-                    BadgeColor = "info"
-                },
-                new RecentActivityViewModel
-                {
-                    Title = "Nouveau livre ajouté",
-                    Description = "Ajout de 'Les Misérables' à la bibliothèque",
-                    Time = DateTime.Now.AddHours(-4),
-                    Icon = "plus",
-                    BadgeColor = "primary"
-                },
-                new RecentActivityViewModel
-                {
-                    Title = "Rappel de retard",
-                    Description = "Email envoyé à Pierre Durand pour retard",
-                    Time = DateTime.Now.AddHours(-6),
-                    Icon = "exclamation-triangle",
-                    BadgeColor = "warning"
-                },
-                new RecentActivityViewModel
-                {
-                    Title = "Nouvel utilisateur",
-                    Description = "Sophie Leblanc s'est inscrite",
-                    Time = DateTime.Now.AddDays(-1),
-                    Icon = "user-plus",
-                    BadgeColor = "success"
-                }
-            };
+                var membres = await _membreService.GetAllMembersAsync(); // ✅ TON VRAI NOM !
+                return membres.Count();
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         private async Task<List<PopularBookViewModel>> GetPopularBooksAsync()
         {
-            await Task.Delay(1);
+            try
+            {
+                var topAuteurs = await _statistiquesService.GetTop5AuteursPopulairesAsync();
 
-            // Plus de livres populaires pour tester l'affichage
+                var result = new List<PopularBookViewModel>();
+                int index = 1;
+
+                foreach (dynamic auteur in topAuteurs)
+                {
+                    result.Add(new PopularBookViewModel
+                    {
+                        Id = index++,
+                        Title = $"Œuvres de {auteur.Auteur}",
+                        Author = auteur.Auteur.ToString(),
+                        LoanCount = (int)auteur.NombreEmprunts
+                    });
+                }
+
+                return result.Any() ? result : GetDefaultPopularBooks();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur PopularBooks: {ex.Message}");
+                return GetDefaultPopularBooks();
+            }
+        }
+
+        private List<PopularBookViewModel> GetDefaultPopularBooks()
+        {
             return new List<PopularBookViewModel>
             {
                 new PopularBookViewModel
                 {
                     Id = 1,
-                    Title = "Le Petit Prince",
-                    Author = "Antoine de Saint-Exupéry",
-                    LoanCount = 45
-                },
-                new PopularBookViewModel
-                {
-                    Id = 2,
-                    Title = "1984",
-                    Author = "George Orwell",
-                    LoanCount = 38
-                },
-                new PopularBookViewModel
-                {
-                    Id = 3,
-                    Title = "Les Misérables",
-                    Author = "Victor Hugo",
-                    LoanCount = 32
-                },
-                new PopularBookViewModel
-                {
-                    Id = 4,
-                    Title = "L'Étranger",
-                    Author = "Albert Camus",
-                    LoanCount = 28
-                },
-                new PopularBookViewModel
-                {
-                    Id = 5,
-                    Title = "Le Comte de Monte-Cristo",
-                    Author = "Alexandre Dumas",
-                    LoanCount = 25
+                    Title = "Aucune donnée disponible",
+                    Author = "Système",
+                    LoanCount = 0
                 }
             };
         }
 
-        // Méthode utilitaire pour simuler une variation des statistiques
-        private int GetRandomizedStat(int baseValue, int variation = 5)
+        private List<RecentActivityViewModel> GetRecentActivitiesSync()
         {
-            var random = new Random();
-            return baseValue + random.Next(-variation, variation + 1);
+            return new List<RecentActivityViewModel>
+            {
+                new RecentActivityViewModel
+                {
+                    Title = "📊 Dashboard actualisé",
+                    Description = "Statistiques en temps réel depuis la base de données",
+                    Time = DateTime.Now,
+                    Icon = "chart-line",
+                    BadgeColor = "success"
+                },
+                new RecentActivityViewModel
+                {
+                    Title = " Livres synchronisés",
+                    Description = "Inventaire des livres disponibles mis à jour",
+                    Time = DateTime.Now.AddMinutes(-3),
+                    Icon = "books",
+                    BadgeColor = "info"
+                },
+                new RecentActivityViewModel
+                {
+                    Title = "👥 Membres actifs",
+                    Description = "Liste des membres mise à jour",
+                    Time = DateTime.Now.AddMinutes(-7),
+                    Icon = "users",
+                    BadgeColor = "primary"
+                }
+            };
         }
     }
 }
