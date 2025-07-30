@@ -64,7 +64,7 @@ public class EmployeController : ControllerBase
             }
             return Ok(employe);
         }
-        catch (ArgumentException ex) // Capturer l'exception pour l'ID <= 0 du service
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -97,7 +97,7 @@ public class EmployeController : ControllerBase
             }
             return Ok(employe);
         }
-        catch (ArgumentException ex) // Capturer l'exception pour l'email vide/nul du service
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -131,16 +131,15 @@ public class EmployeController : ControllerBase
         try
         {
             var createdEmploye = await _employeService.AddEmployeeAsync(employe, dataPassword);
-            // Utilise nameof(GetEmployeById) pour la route GET appropriée.
             return CreatedAtAction(nameof(GetEmployeById), new { id = createdEmploye.Id }, createdEmploye);
         }
-        catch (ArgumentException ex) // Données invalides (email, nom, prénom, mot de passe, rôle manquants/invalides)
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
-        catch (InvalidOperationException ex) // Employé avec le même email déjà existant
+        catch (InvalidOperationException ex)
         {
-            return Conflict(ex.Message); // Utilisez 409 Conflict pour les doublons
+            return Conflict(ex.Message);
         }
         catch (Exception ex)
         {
@@ -167,7 +166,6 @@ public class EmployeController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        // Le service gère déjà la validation id != updatedEmployee.Id, mais une vérification précoce ici peut être utile.
         if (id != employe.Id)
         {
             return BadRequest("L'ID de l'employé dans l'URL ne correspond pas à l'ID dans le corps de la requête.");
@@ -182,7 +180,7 @@ public class EmployeController : ControllerBase
             }
             return Ok(updatedEmploye);
         }
-        catch (ArgumentException ex) // Pour les validations d'ID ou de données
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -213,14 +211,12 @@ public class EmployeController : ControllerBase
             {
                 return NotFound($"Employé avec l'ID {id} non trouvé.");
             }
-            return Ok(deletedEmploye); // Retourne l'employé supprimé avec 200 OK
+            return Ok(deletedEmploye);
         }
-        catch (ArgumentException ex) // ID <= 0
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
-        // Ajoutez ici d'autres catch pour des InvalidOperationException si votre service en lance
-        // pour des règles métier spécifiques (ex: ne pas supprimer un employé qui a encore des emprunts actifs à gérer ou est responsable d'autres entités).
         catch (Exception ex)
         {
             return StatusCode(500, $"Une erreur interne est survenue lors de la suppression de l'employé : {ex.Message}");

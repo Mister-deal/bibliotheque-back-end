@@ -154,7 +154,6 @@ public class MembreController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-
         if (id != membre.Id)
         {
             return BadRequest("L'ID du membre dans l'URL ne correspond pas à l'ID dans le corps de la requête.");
