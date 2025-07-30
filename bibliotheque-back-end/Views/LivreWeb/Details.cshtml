@@ -1,0 +1,84 @@
+﻿@model bibliotheque_back_end.Models.Livre
+@{
+    ViewData["Title"] = "Détails - " + Model.Titre;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">📖 Détails du Livre</h3>
+                    <span class="badge @(Model.Etat == bibliotheque_back_end.Models.EtatLivre.Disponible ? "bg-success" : "bg-danger") fs-6">
+                        @(Model.Etat == bibliotheque_back_end.Models.EtatLivre.Disponible ? "✅ Disponible" : "❌ " + Model.Etat)
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <h1 class="display-6 text-primary mb-3">@Model.Titre</h1>
+                            <h4 class="text-muted mb-4">👤 @Model.Auteur</h4>
+
+                            @if (!string.IsNullOrEmpty(Model.Description))
+                            {
+                                <div class="alert alert-light border-start border-primary border-4">
+                                    <h6 class="fw-bold">📝 Description</h6>
+                                    <p class="mb-0">@Model.Description</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-5">📅 Année :</dt>
+                                <dd class="col-7">@Model.AnneePublication</dd>
+
+                                @if (!string.IsNullOrEmpty(Model.Editeur))
+                                {
+                                    <dt class="col-5">🏢 Éditeur :</dt>
+                                    <dd class="col-7">@Model.Editeur</dd>
+                                }
+
+                                <dt class="col-5">📚 Catégorie :</dt>
+                                <dd class="col-7">
+                                    <span class="badge bg-secondary fs-6">@Model.Categorie</span>
+                                </dd>
+                            </dl>
+                        </div>
+
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-5">🆔 ID :</dt>
+                                <dd class="col-7"><code>#@Model.Id</code></dd>
+
+                                <dt class="col-5">📊 État :</dt>
+                                <dd class="col-7">
+                                    <span class="badge @(Model.Etat == bibliotheque_back_end.Models.EtatLivre.Disponible ? "bg-success" : "bg-danger") fs-6">
+                                        @Model.Etat
+                                    </span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                            ✏️ Modifier
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                            🗑️ Supprimer
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            ← Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

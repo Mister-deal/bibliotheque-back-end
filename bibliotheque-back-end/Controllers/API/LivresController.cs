@@ -91,6 +91,43 @@ namespace bibliotheque_back_end.Controllers
             }
         }
 
+        // POST: api/livres/bulk // Pour mettre un gros JSON en mode BARBARE !
+        [HttpPost("bulk")]
+        [SwaggerOperation(
+            Summary = "Ajoute plusieurs livres en une seule fois",
+            Description = "Permet d'ajouter plusieurs livres via un tableau JSON"
+        )]
+        [SwaggerResponse(200, "Livres créés avec succès")]
+        [SwaggerResponse(400, "Erreur dans les données")]
+        public async Task<ActionResult> PostLivresBulk([FromBody] List<Livre> livres)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var createdLivres = new List<Livre>();
+
+                foreach (var livre in livres)
+                {
+                    var created = await _livreService.AddNewBookAsync(livre);
+                    createdLivres.Add(created);
+                }
+
+                return Ok(new
+                {
+                    Message = $"{createdLivres.Count} livres ajoutés avec succès",
+                    Livres = createdLivres
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
         //a tester
         // PUT: api/livres/{id}
         [HttpPut("{id}")]

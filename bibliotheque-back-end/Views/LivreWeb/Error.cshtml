@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Erreur";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6 mx-auto">
+            <div class="card border-danger shadow">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">❌ Une erreur est survenue</h3>
+                </div>
+
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-exclamation-triangle fa-4x text-danger"></i>
+                    </div>
+
+                    <h4 class="text-danger mb-3">Oups ! Une erreur est survenue</h4>
+
+                    @if (ViewBag.ErrorMessage != null)
+                    {
+                        <div class="alert alert-danger text-start">
+                            <strong>Détails de l'erreur :</strong><br>
+                            @ViewBag.ErrorMessage
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">
+                            Une erreur inattendue s'est produite lors du traitement de votre demande.
+                            Veuillez réessayer ou contacter l'administrateur si le problème persiste.
+                        </p>
+                    }
+
+                    <div class="d-flex gap-2 justify-content-center mt-4">
+                        <a asp-action="Index" class="btn btn-primary">
+                            🏠 Retour à l'accueil
+                        </a>
+                        <button onclick="window.history.back()" class="btn btn-secondary">
+                            ← Page précédente
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

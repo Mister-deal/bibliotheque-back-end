@@ -1,0 +1,116 @@
+﻿@model BibliothequeBackEnd.Models.ViewModels.LivreEditViewModel
+@{
+    ViewData["Title"] = "Modifier - " + Model.Titre;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0">✏️ Modifier le Livre</h3>
+                    <small class="text-muted">ID: #@Model.Id</small>
+                </div>
+
+                <form asp-action="Edit" method="post" novalidate>
+                    <input asp-for="Id" type="hidden" />
+
+                    <div class="card-body">
+                        @if (ViewBag.ErrorMessage != null)
+                        {
+                            <div class="alert alert-danger">
+                                @ViewBag.ErrorMessage
+                            </div>
+                        }
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Titre" class="form-label fw-bold">
+                                    📖 Titre *
+                                </label>
+                                <input asp-for="Titre" class="form-control" placeholder="Titre du livre" />
+                                <span asp-validation-for="Titre" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Auteur" class="form-label fw-bold">
+                                    👤 Auteur *
+                                </label>
+                                <input asp-for="Auteur" class="form-control" placeholder="Nom de l'auteur" />
+                                <span asp-validation-for="Auteur" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold">
+                                📝 Description
+                            </label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Description du livre (optionnel)"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                            <div class="form-text">Maximum 500 caractères</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="AnneePublication" class="form-label fw-bold">
+                                    📅 Année de publication *
+                                </label>
+                                <input asp-for="AnneePublication" type="number" class="form-control" min="1000" max="2100" />
+                                <span asp-validation-for="AnneePublication" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Editeur" class="form-label fw-bold">
+                                    🏢 Éditeur
+                                </label>
+                                <input asp-for="Editeur" class="form-control" placeholder="Nom de l'éditeur" />
+                                <span asp-validation-for="Editeur" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Categorie" class="form-label fw-bold">
+                                    📚 Catégorie *
+                                </label>
+                                <select asp-for="Categorie" asp-items="Html.GetEnumSelectList<bibliotheque_back_end.Models.Categorie>()" class="form-select">
+                                    <option value="">-- Sélectionnez une catégorie --</option>
+                                </select>
+                                <span asp-validation-for="Categorie" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="EtatLivre" class="form-label fw-bold">
+                                    📊 État du livre
+                                </label>
+                                <select asp-for="EtatLivre" asp-items="Html.GetEnumSelectList<bibliotheque_back_end.Models.EtatLivre>()" class="form-select">
+                                </select>
+                                <span asp-validation-for="EtatLivre" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-light">
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                💾 Enregistrer les modifications
+                            </button>
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info">
+                                👁️ Voir les détails
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                ❌ Annuler
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

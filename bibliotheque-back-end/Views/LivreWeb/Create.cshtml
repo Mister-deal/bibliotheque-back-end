@@ -1,0 +1,118 @@
+﻿@model BibliothequeBackEnd.Models.ViewModels.LivreCreateViewModel
+@{
+    ViewData["Title"] = "Ajouter un Livre";
+}
+
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Livres</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Nouveau livre</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">➕ Ajouter un Nouveau Livre</h3>
+                </div>
+
+                <form asp-action="Create" method="post">
+                    <div class="card-body">
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger">
+                                <h6 class="alert-heading">❌ Erreurs de validation</h6>
+                                <ul class="mb-0">
+                                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                    {
+                                        <li>@error.ErrorMessage</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label asp-for="Titre" class="form-label fw-bold">
+                                    📚 Titre <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Titre" class="form-control form-control-lg" placeholder="Titre du livre..." />
+                                <span asp-validation-for="Titre" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Auteur" class="form-label fw-bold">
+                                    👤 Auteur <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Auteur" class="form-control" placeholder="Nom et prénom de l'auteur..." />
+                                <span asp-validation-for="Auteur" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="AnneePublication" class="form-label fw-bold">
+                                    📅 Année de publication <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="AnneePublication" type="number" class="form-control"
+                                       min="1000" max="@DateTime.Now.Year" placeholder="@DateTime.Now.Year" />
+                                <span asp-validation-for="AnneePublication" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Editeur" class="form-label fw-bold">
+                                    🏢 Éditeur <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Editeur" class="form-control" placeholder="Nom de l'éditeur..." />
+                                <span asp-validation-for="Editeur" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Categorie" class="form-label fw-bold">
+                                    📂 Catégorie <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="Categorie" asp-items="Html.GetEnumSelectList<bibliotheque_back_end.Models.Categorie>()" class="form-select">
+                                    <option value="">-- Sélectionnez une catégorie --</option>
+                                </select>
+                                <span asp-validation-for="Categorie" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label asp-for="Description" class="form-label fw-bold">
+                                    📄 Description <small class="text-muted">(optionnel)</small>
+                                </label>
+                                <textarea asp-for="Description" class="form-control" rows="4"
+                                          placeholder="Description du livre, résumé, notes..."></textarea>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                                <div class="form-text">Maximum 500 caractères</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-light">
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                💾 Créer le livre
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary btn-lg">
+                                ❌ Annuler
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
