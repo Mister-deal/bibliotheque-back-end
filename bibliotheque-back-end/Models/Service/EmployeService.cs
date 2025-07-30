@@ -6,9 +6,8 @@ namespace bibliotheque_back_end.Models.Service.Interface;
 public class EmployeService : IEmployeService
 {
     private readonly IEmployeRepository _repository;
-    private readonly BibliothequeDb _context; // Ajout du DbContext pour SaveChangesAsync()
+    private readonly BibliothequeDb _context;
 
-    // Le constructeur doit maintenant prendre BibliothequeDb pour SaveChangesAsync()
     public EmployeService(IEmployeRepository repository, BibliothequeDb context)
     {
         _repository = repository;
@@ -28,8 +27,6 @@ public class EmployeService : IEmployeService
         }
 
         var employee = await _repository.GetEmployeeAsync(id);
-        // Pas besoin de jeter une ArgumentException si l'employé est null, un retour null est attendu par l'interface.
-        // C'est à la couche appelante (contrôleur) de décider quoi faire avec un retour null (ex: NotFound).
         return employee;
     }
 
@@ -44,8 +41,6 @@ public class EmployeService : IEmployeService
 
     public async Task<Employe> AddEmployeeAsync(Employe newEmployee, string dataPassword)
     {
-        // Correction de la logique de vérification de null :
-        // Si newEmployee est null, vous devriez lancer une exception, pas si ce n'est PAS null.
         if (newEmployee == null)
         {
             throw new ArgumentNullException(nameof(newEmployee), "L'objet employé ne peut pas être nul.");
@@ -61,18 +56,15 @@ public class EmployeService : IEmployeService
             throw new ArgumentException("Email, nom et prénom sont nécessaires pour la création d'un nouvel employé.", nameof(newEmployee));
         }
 
-        if (newEmployee.Role == null) // La propriété Role est-elle nullable? Si oui, OK. Si non, ce check est superflu pour un type enum.
+        if (newEmployee.Role == null)
         {
             throw new ArgumentNullException("Le rôle ne peut être nul.", nameof(newEmployee));
         }
-        // Pour les enums, 'default(Role)' est souvent le premier élément (0).
-        // Il est plus robuste de vérifier si le rôle est un membre défini de l'enum si ce n'est pas le cas.
-        if (newEmployee.Role == default(Role)) // Ou une autre logique pour un rôle par défaut
+        if (newEmployee.Role == default(Role))
         {
             newEmployee.Role = Role.Bibliothecaire;
         }
         
-        // Utilisation correcte de la méthode asynchrone du repository pour vérifier l'existence par email
         if (await _repository.ExistsByEmailAsync(newEmployee.Email))
         {
             throw new InvalidOperationException($"Un employé avec le même email '{newEmployee.Email}' existe déjà.");
@@ -119,12 +111,9 @@ public class EmployeService : IEmployeService
         
         
         if (!string.IsNullOrWhiteSpace(updatedEmployee.MotDePasse) &&
-            updatedEmployee.MotDePasse != existingEmployee.MotDePasse) // Compare against existing for changes, but ensure it's hashed later
+            updatedEmployee.MotDePasse != existingEmployee.MotDePasse)
         {
-            // Validate the new password format if necessary (e.g., using a regular expression)
-            // This validation typically happens at the DTO or model level using data annotations.
 
-            // Hash the new password before storing it
             existingEmployee.MotDePasse = BCrypt.Net.BCrypt.HashPassword(updatedEmployee.MotDePasse);
         }
 

@@ -38,7 +38,6 @@ public class MembreController : ControllerBase
         }
         catch (Exception ex)
         {
-            // Il est recommandé de logger l'exception ici pour le débogage.
             return StatusCode(500, $"Une erreur interne est survenue lors de la récupération des membres : {ex.Message}");
         }
     }
@@ -66,7 +65,7 @@ public class MembreController : ControllerBase
             }
             return Ok(membre);
         }
-        catch (ArgumentException ex) // Catch spécifique pour l'ID <= 0 du service
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -99,7 +98,7 @@ public class MembreController : ControllerBase
             }
             return Ok(membre);
         }
-        catch (ArgumentException ex) // Catch spécifique pour l'email vide/nul du service
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -132,16 +131,15 @@ public class MembreController : ControllerBase
         try
         {
             var createdMember = await _membreService.AddMemberAsync(membre, dataPassword);
-            // Utilise nameof(GetMembreById) pour la route GET appropriée.
             return CreatedAtAction(nameof(GetMembreById), new { id = createdMember.Id }, createdMember);
         }
-        catch (ArgumentException ex) // Données invalides (email, nom, prénom, mot de passe manquants)
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
-        catch (InvalidOperationException ex) // Membre avec le même email déjà existant
+        catch (InvalidOperationException ex)
         {
-            return Conflict(ex.Message); // Utilisez 409 Conflict pour les doublons
+            return Conflict(ex.Message);
         }
         catch (Exception ex)
         {
@@ -167,7 +165,6 @@ public class MembreController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        // Le service gère déjà la validation id != updatedMember.Id, mais une vérification précoce ici peut être utile.
         if (id != membre.Id)
         {
             return BadRequest("L'ID du membre dans l'URL ne correspond pas à l'ID dans le corps de la requête.");
@@ -182,7 +179,7 @@ public class MembreController : ControllerBase
             }
             return Ok(updatedMember);
         }
-        catch (ArgumentException ex) // Pour les validations d'ID ou de données
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -213,9 +210,9 @@ public class MembreController : ControllerBase
             {
                 return NotFound($"Membre avec l'ID {id} non trouvé.");
             }
-            return Ok(deletedMember); // Retourne le membre supprimé avec 200 OK
+            return Ok(deletedMember);
         }
-        catch (ArgumentException ex) // ID <= 0
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }

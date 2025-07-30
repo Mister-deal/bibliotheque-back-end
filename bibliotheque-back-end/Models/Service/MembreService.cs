@@ -7,14 +7,14 @@ namespace bibliotheque_back_end.Models.Service;
 public class MembreService : IMembreService
 {
     private readonly IMembreRepository _membreRepository;
-    private readonly IEmpruntRepository _empruntRepository; // Gardé au cas où, mais pas utilisé directement dans les méthodes actuelles du repository.
-    private readonly BibliothequeDb _context; // Ajout du DbContext pour SaveChangesAsync()
+    private readonly IEmpruntRepository _empruntRepository;
+    private readonly BibliothequeDb _context;
 
     public MembreService(IMembreRepository membreRepository, IEmpruntRepository empruntRepository, BibliothequeDb context)
     {
         _membreRepository = membreRepository;
         _empruntRepository = empruntRepository;
-        _context = context; // Initialisation du DbContext
+        _context = context;
     }
 
     public async Task<IEnumerable<Membre>> GetAllMembersAsync()
@@ -30,8 +30,6 @@ public class MembreService : IMembreService
         }
 
         var member = await _membreRepository.GetMemberAsync(id);
-        // L'interface permet un retour null, donc pas d'exception ArgumentException si non trouvé.
-        // C'est à la couche appelante de gérer le cas où le membre n'est pas trouvé.
         return member;
     }
 
@@ -46,7 +44,6 @@ public class MembreService : IMembreService
 
     public async Task<Membre> AddMemberAsync(Membre newMember, string dataPassword)
     {
-        // Correction de la logique de vérification de null :
         if (newMember == null)
         {
             throw new ArgumentNullException(nameof(newMember), "L'objet membre ne peut pas être nul.");
@@ -62,20 +59,11 @@ public class MembreService : IMembreService
         {
             throw new ArgumentException("Email, nom et prénom sont nécessaires pour la création d'un nouveau membre.", nameof(newMember));
         }
-
-        // Utilisation correcte de la méthode asynchrone du repository pour vérifier l'existence par email
-        // Note: Vous devriez ajouter une méthode ExistsByEmailAsync à IMembreRepository et MembreRepository.
-        // Si non disponible, la solution fallback est moins performante mais fonctionnelle :
         var allMembers = await _membreRepository.GetAllMembersAsync();
         if (allMembers.Any(m => m.Email.Equals(newMember.Email, StringComparison.OrdinalIgnoreCase)))
         {
              throw new InvalidOperationException($"Un membre avec le même email '{newMember.Email}' existe déjà.");
         }
-        // Solution préférée si vous ajoutez ExistsByEmailAsync à votre repository:
-        // if (await _membreRepository.ExistsByEmailAsync(newMember.Email))
-        // {
-        //     throw new InvalidOperationException($"Un membre avec le même email '{newMember.Email}' existe déjà.");
-        // }
         
         string passwordHash = BCrypt.Net.BCrypt.HashPassword(dataPassword);
         newMember.MotDePasse = passwordHash;
@@ -135,11 +123,7 @@ public class MembreService : IMembreService
         {
             return null; // Retourne null si le membre n'existe pas.
         }
-
-        // Il faudrait charger les emprunts du membre avec le membre, potentiellement via le repository.
-        // Si votre `GetMemberAsync` n'inclut pas les emprunts, cela pourrait ne pas fonctionner.
-        // Vous pouvez aussi utiliser _empruntRepository pour vérifier.
-        // Exemple :
+        
         var activeLoans = await _empruntRepository.GetEmpruntsByMembreIdAsync(id);
         if (activeLoans.Any(e => e.DateRetour == null)) // Vérifie les emprunts non encore retournés
         {

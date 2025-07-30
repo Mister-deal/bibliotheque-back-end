@@ -8,13 +8,13 @@ public class LivreService : ILivreService
 {
     private readonly IEmpruntRepository _empruntRepository;
     private readonly ILivreRepository _livreRepository;
-    private readonly BibliothequeDb _context; // Ajout du DbContext pour SaveChangesAsync()
+    private readonly BibliothequeDb _context;
 
     public LivreService(IEmpruntRepository empruntRepository, ILivreRepository livreRepository, BibliothequeDb context)
     {
         _empruntRepository = empruntRepository;
         _livreRepository = livreRepository;
-        _context = context; // Initialisation du DbContext
+        _context = context;
     }
 
     public async Task<IEnumerable<Livre>> GetAllBooksAsync()
@@ -30,8 +30,6 @@ public class LivreService : ILivreService
         }
 
         var book = await _livreRepository.GetBookByIdAsync(id);
-        // L'interface permet un retour null, donc pas d'exception KeyNotFoundException ici.
-        // C'est à la couche appelante de gérer le cas où le livre n'est pas trouvé.
         return book;
     }
 
@@ -47,13 +45,7 @@ public class LivreService : ILivreService
         {
             throw new ArgumentException("Le titre, l'auteur et l'éditeur sont nécessaires pour un nouveau livre.", nameof(newBook));
         }
-
-        // Vérifiez l'existence d'un livre avec le même titre, auteur et éditeur pour éviter les doublons.
-        // Cela nécessiterait une nouvelle méthode dans ILivreRepository, par exemple :
-        // if (await _livreRepository.BookExistsByDetailsAsync(newBook.Titre, newBook.Auteur, newBook.Editeur))
-        // {
-        //     throw new InvalidOperationException($"Un livre avec le titre '{newBook.Titre}' par '{newBook.Auteur}' existe déjà.");
-        // }
+        
         
         newBook.Etat = EtatLivre.Disponible; // S'assure que le livre est disponible à la création
         
@@ -91,11 +83,6 @@ public class LivreService : ILivreService
         existingBook.AnneePublication = updatedBook.AnneePublication;
         existingBook.Editeur = updatedBook.Editeur;
         existingBook.Categorie = updatedBook.Categorie;
-        
-        // Note : Le statut (Etat) d'un livre ne doit probablement pas être mis à jour directement via cette méthode
-        // pour des raisons de logique métier (par exemple, un livre emprunté ne devient pas "disponible" par une simple mise à jour).
-        // Si vous voulez permettre la mise à jour de l'état, ajoutez une validation spécifique.
-        // existingBook.Etat = updatedBook.Etat; 
 
         await _livreRepository.UpdateBookAsync(existingBook);
         await _context.SaveChangesAsync(); // Sauvegarde asynchrone des changements
@@ -113,8 +100,6 @@ public class LivreService : ILivreService
         var livreADelete = await _livreRepository.GetBookByIdAsync(id);
         if (livreADelete == null)
         {
-            // L'interface renvoie Task, donc on ne peut pas retourner null.
-            // On peut lancer une exception spécifique ou simplement ne rien faire si l'élément n'existe pas.
             throw new KeyNotFoundException($"Le livre avec l'ID {id} n'a pas été trouvé.");
         }
 
@@ -123,10 +108,6 @@ public class LivreService : ILivreService
             throw new InvalidOperationException($"Le livre '{livreADelete.Titre}' ne peut pas être supprimé car il est actuellement emprunté.");
         }
         
-        // Vous pouvez également vérifier les réservations actives pour ce livre si pertinent
-        // bool hasActiveReservation = await _empruntRepository.HasActiveReservationForBookAsync(id); // Nécessiterait une méthode dans IEmpruntRepository
-        // if (hasActiveReservation) { throw new InvalidOperationException("Le livre ne peut être supprimé car il a des réservations actives."); }
-
         await _livreRepository.DeleteBookAsync(livreADelete);
         await _context.SaveChangesAsync(); // Sauvegarde asynchrone des changements
     }
