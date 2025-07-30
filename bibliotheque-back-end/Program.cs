@@ -1,3 +1,4 @@
+using System.Text;
 using bibliotheque_back_end.Data;
 using bibliotheque_back_end.Models.repositery;
 using bibliotheque_back_end.Models.Service;
@@ -5,6 +6,9 @@ using bibliotheque_back_end.Models.Service.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +56,35 @@ builder.Services.AddScoped<IEmpruntRepository, EmpruntRepository>();
 builder.Services.AddScoped<ILivreRepository, LivreRepository>();
 builder.Services.AddScoped<IMembreRepository, MembreRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+
+//Enregistrement service AuthService JWT
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+//ajout logique JWT
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+
+    }).AddJwtBearer(options =>
+    {
+        options.SaveToken = true;
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey =
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtConfig:Key"]!)),
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+        };
+    });
+builder.Services.AddAuthorization();
 
 
 var app = builder.Build();
@@ -134,6 +167,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseAuthentication(); // Active l'authentification jwt
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -141,4 +175,3 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
-//test
