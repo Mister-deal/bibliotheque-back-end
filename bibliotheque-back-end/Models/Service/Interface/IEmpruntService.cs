@@ -10,6 +10,7 @@ public interface IEmpruntService
     
     Task<Emprunt> CreateEmpruntAsync(int membreId, List<int> livreIds, DateOnly? dateRetour, int employeValidationId);
     Task<Emprunt?> ReturnSpecificBookFromEmpruntAsync(int empruntId, int livreId, int employeValidationId); // Peut retourner null si non trouvé ou si l'opération échoue
+    Task<Emprunt?> ReturnAllBooksForEmpruntAsync(int empruntId, int employeValidationId);
     Task<Emprunt?> DeleteEmpruntAsync(int id); // Peut retourner null si non trouvé
     Task<bool> EmpruntExistsAsync(int id);
 }
