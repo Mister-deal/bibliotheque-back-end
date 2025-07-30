@@ -2,18 +2,7 @@
     ViewData["Title"] = "Home Page";
 }
 
-<header>
-    <div class="header-content">
-        <div class="header-logo">
-            <img src="images/logo.jpeg" alt="Logo" />
-            <div>BIBLIOTHÈQUE Simplon</div>
-        </div>
-        <div class="header-search">
-            <input type="text" placeholder="Recherche...">
-        </div>
-        <div class="header-user">UTILISATEUR</div>
-    </div>
-</header>
+@await Html.PartialAsync("_Header")
 
 <main>
     <!-- Grosse image centrale -->
@@ -27,7 +16,7 @@
         <div class="actualite-img"><img src="images/img3.jpg" /></div>
     </div>
     <div class="actions-center">
-        <button class="btn-light">Voir toutes les livres</button>
+        <button class="btn-light">Voir tous les livres</button>
     </div>
 </main>
 
@@ -46,44 +35,7 @@
     </div>
 </section>
 
-<footer class="site-footer">
-    <div class="footer-content">
-        <div class="footer-section">
-            <div class="footer-logo">
-                <img src="images/logo.jpeg" alt="Logo" />
-                <span>BIBLIOTHÈQUE Simplon</span>
-            </div>
-            <p>123 Rue de la République, 75001 Paris</p>
-            <p>Tél : 01 23 45 67 89</p>
-        </div>
-
-        <div class="footer-section">
-            <h4>Liens rapides</h4>
-            <a href="/catalogue">Catalogue</a>
-            <a href="/services">Services</a>
-            <a href="/evenements">Événements</a>
-            <a href="/contact">Contact</a>
-        </div>
-
-        <div class="footer-section">
-            <h4>Informations</h4>
-            <a href="/horaires">Horaires d'ouverture</a>
-            <a href="/inscription">S'inscrire</a>
-            <a href="/aide">Aide</a>
-        </div>
-    </div>
-
-    <div class="footer-bottom">
-        <p>© @DateTime.Now.Year BiblioSimplon.fr — Tous droits réservés.</p>
-        <div class="footer-links">
-            <a href="/mentions-legales">Mentions légales</a> |
-            <a href="/contact">Contact</a>
-        </div>
-    </div>
-</footer>
-
-
-
+@await Html.PartialAsync("_Footer")
 
 <!-- Style CSS -->
 <style>
@@ -101,58 +53,6 @@
         background: var(--gris-bg);
         font-family: 'Segoe UI', Arial, sans-serif;
         color: var(--noir);
-    }
-
-    /* HEADER */
-    header {
-        background: var(--marron);
-        padding: 24px 0;
-    }
-
-    .header-content {
-        max-width: 1180px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 2rem;
-        padding: 0 2rem;
-    }
-
-    .header-logo {
-        display: flex;
-        align-items: center;
-        gap: 0.7rem;
-    }
-
-        .header-logo img {
-            width: 72px;
-            height: 72px;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-    .header-search {
-        flex: 1 1 280px;
-        max-width: 400px;
-        margin: 0 1rem;
-    }
-
-        .header-search input {
-            width: 100%;
-            padding: 9px 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-    .header-user {
-        min-width: 90px;
-        text-align: center;
-        padding: 15px 12px;
-        background: var(--gris-btn);
-        border-radius: 4px;
-        font-size: 1rem;
     }
 
     /* MAIN */
@@ -253,100 +153,4 @@
         letter-spacing: 0.7px;
     }
 
-    /* FOOTER */
-    .site-footer {
-        background: var(--noir) !important;
-        color: white !important;
-        padding: 40px 0 20px 0;
-        margin-top: 0;
-        border-top: 3px solid var(--marron);
-    }
-
-    .footer-content {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 0 2rem;
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 2rem;
-        margin-bottom: 30px;
-    }
-
-    .footer-section {
-        color: white !important;
-    }
-
-        .footer-section h4 {
-            color: var(--marron) !important;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            margin-top: 0;
-        }
-
-    .footer-logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-
-        .footer-logo img {
-            width: 45px;
-            height: 45px;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-        .footer-logo span {
-            font-weight: 600;
-            color: var(--marron) !important;
-            font-size: 1.1rem;
-        }
-
-    .footer-section p {
-        color: #cccccc !important;
-        margin: 5px 0;
-        font-size: 0.9rem;
-    }
-
-    .footer-section a {
-        display: block;
-        color: #cccccc !important;
-        text-decoration: none;
-        margin: 8px 0;
-        font-size: 0.9rem;
-        transition: color 0.3s ease;
-    }
-
-        .footer-section a:hover {
-            color: var(--marron) !important;
-        }
-
-    .footer-bottom {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 20px 2rem 0;
-        border-top: 1px solid #444;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: #aaa !important;
-        font-size: 0.85rem;
-    }
-
-        .footer-bottom p {
-            margin: 0;
-            color: #aaa !important;
-        }
-
-        .footer-bottom .footer-links a {
-            color: #cccccc !important;
-            text-decoration: none;
-            margin: 0 5px;
-        }
-
-            .footer-bottom .footer-links a:hover {
-                color: var(--marron) !important;
-            }
 </style>
