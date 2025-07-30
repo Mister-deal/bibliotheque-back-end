@@ -11,13 +11,13 @@ namespace bibliotheque_back_end.Models
 
         [Required(ErrorMessage = "Un titre est requis.")]
         [StringLength(100, MinimumLength = 1, ErrorMessage = "Le titre doit contenir entre 1 et 100 caractères.")]
-        [RegularExpression(@"^[A-Za-zÀ-ÿ0-9\s\-\.',:!?()«»”“\""&/]+$", ErrorMessage = "Le titre contient des caractères non autorisés.")]
+        [RegularExpression(@"^[A-Za-zÀ-ÿ0-9\s\-\.',:!?()«»""&/.@°%#+*=]+$", ErrorMessage = "Le titre contient des caractères non autorisés.")]
         [SwaggerSchema("Titre du livre")]
         public required string Titre { get; set; }
 
         [Required(ErrorMessage = "Un nom d'auteur est requis.")]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "L'auteur doit contenir entre 2 et 50 caractères.")]
-        [RegularExpression(@"^[A-Za-zÀ-ÿ\s\-'’]+$", ErrorMessage = "Le nom de l'auteur ne doit contenir que des lettres, espaces, tirets ou apostrophes.")]
+        [RegularExpression(@"^[A-Za-zÀ-ÿ\s\-''.]+$", ErrorMessage = "Le nom de l'auteur ne doit contenir que des lettres, espaces, tirets ou apostrophes.")]
         [SwaggerSchema("Nom et prénom complet de l’auteur")]
         public required string Auteur { get; set; }
 
@@ -32,7 +32,7 @@ namespace bibliotheque_back_end.Models
 
         [Required(ErrorMessage = "Un éditeur est requis.")]
         [StringLength(50, MinimumLength = 1, ErrorMessage = "L'éditeur doit contenir entre 1 et 50 caractères.")]
-        [RegularExpression(@"^[A-Za-zÀ-ÿ0-9\s\-\.',:!?()«»”“""]+$", ErrorMessage = "L'éditeur contient des caractères non autorisés.")]
+        [RegularExpression(@"^[A-Za-zÀ-ÿ0-9\s\-\.',:!?()«»""&/.@°%#+*=]+$", ErrorMessage = "L'éditeur contient des caractères non autorisés.")]
         [SwaggerSchema("Nom de l'éditeur")]
         public string? Editeur { get; set; }
 
