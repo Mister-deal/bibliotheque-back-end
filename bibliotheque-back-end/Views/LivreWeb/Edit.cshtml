@@ -80,12 +80,12 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label asp-for="Etat" class="form-label fw-bold">
+                                <label asp-for="EtatLivre" class="form-label fw-bold">
                                     📊 État du livre
                                 </label>
-                                <select asp-for="Etat" asp-items="Html.GetEnumSelectList<bibliotheque_back_end.Models.EtatLivre>()" class="form-select">
+                                <select asp-for="EtatLivre" asp-items="Html.GetEnumSelectList<bibliotheque_back_end.Models.EtatLivre>()" class="form-select">
                                 </select>
-                                <span asp-validation-for="Etat" class="text-danger small"></span>
+                                <span asp-validation-for="EtatLivre" class="text-danger small"></span>
                             </div>
                         </div>
                     </div>

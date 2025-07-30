@@ -3,7 +3,7 @@ using bibliotheque_back_end.Models.Service.Interface;
 using BibliothequeBackEnd.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
-namespace bibliotheque_back_end.Controllers.WEB;
+namespace bibliotheque_back_end.Controllers;
 
 public class LivreWebController : Controller // Hérite de Controller, pas de ControllerBase
     {
