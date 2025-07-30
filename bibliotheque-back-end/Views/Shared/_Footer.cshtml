@@ -1,0 +1,136 @@
+﻿@{
+}
+<footer class="site-footer">
+    <div class="footer-content">
+        <div class="footer-section">
+            <div class="footer-logo">
+                <img src="images/logo.jpeg" alt="Logo" />
+                <span>BIBLIOTHÈQUE Simplon</span>
+            </div>
+            <p>123 Rue de la République, 75001 Paris</p>
+            <p>Tél : 01 23 45 67 89</p>
+        </div>
+
+        <div class="footer-section">
+            <h4>Liens rapides</h4>
+            <a href="/catalogue">Catalogue</a>
+            <a href="/services">Services</a>
+            <a href="/evenements">Événements</a>
+            <a href="/contact">Contact</a>
+        </div>
+
+        <div class="footer-section">
+            <h4>Informations</h4>
+            <a href="/horaires">Horaires d'ouverture</a>
+            <a href="/inscription">S'inscrire</a>
+            <a href="/aide">Aide</a>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>© @DateTime.Now.Year BiblioSimplon.fr — Tous droits réservés.</p>
+        <div class="footer-links">
+            <a href="/mentions-legales">Mentions légales</a> |
+            <a href="/contact">Contact</a>
+        </div>
+    </div>
+</footer>
+
+<style>
+    /* FOOTER */
+    .site-footer {
+        background: var(--noir) !important;
+        color: white !important;
+        padding: 40px 0 20px 0;
+        margin-top: 0;
+        border-top: 3px solid var(--marron);
+    }
+
+    .footer-content {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 30px;
+    }
+
+    .footer-section {
+        color: white !important;
+    }
+
+        .footer-section h4 {
+            color: var(--marron) !important;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            margin-top: 0;
+        }
+
+    .footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+        .footer-logo img {
+            width: 45px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .footer-logo span {
+            font-weight: 600;
+            color: var(--marron) !important;
+            font-size: 1.1rem;
+        }
+
+    .footer-section p {
+        color: #cccccc !important;
+        margin: 5px 0;
+        font-size: 0.9rem;
+    }
+
+    .footer-section a {
+        display: block;
+        color: #cccccc !important;
+        text-decoration: none;
+        margin: 8px 0;
+        font-size: 0.9rem;
+        transition: color 0.3s ease;
+    }
+
+        .footer-section a:hover {
+            color: var(--marron) !important;
+        }
+
+    .footer-bottom {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 20px 2rem 0;
+        border-top: 1px solid #444;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #aaa !important;
+        font-size: 0.85rem;
+    }
+
+        .footer-bottom p {
+            margin: 0;
+            color: #aaa !important;
+        }
+
+        .footer-bottom .footer-links a {
+            color: #cccccc !important;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+
+            .footer-bottom .footer-links a:hover {
+                color: var(--marron) !important;
+            }
+</style>
