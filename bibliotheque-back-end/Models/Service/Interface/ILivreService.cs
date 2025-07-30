@@ -8,4 +8,7 @@ public interface ILivreService
     Task<Livre?> UpdateBookAsync(int id, Livre updatedBook); // Peut retourner null si non trouvé
     Task DeleteBookAsync(int id); // Retourne un Task car l'opération est asynchrone
     Task<IEnumerable<Livre>> GetAvailableBooksAsync();
+
+    // Partie Dashboard
+    Task<Livre> CreateBookAsync(Livre livre);
 }

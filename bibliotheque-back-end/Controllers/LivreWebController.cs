@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace bibliotheque_back_end.Controllers;
 
-public class LivreWebController : Controller // Hérite de Controller, pas de ControllerBase
+public class LivreWebController : Controller
 {
     private readonly ILivreService _livreService;
 
@@ -15,17 +15,15 @@ public class LivreWebController : Controller // Hérite de Controller, pas de Co
         _livreService = livreService;
     }
 
-    // GET: /LivreWeb/Index - SINGLE Index method with optional search
+    // GET: /LivreWeb/Index - Liste des livres avec recherche
     public async Task<IActionResult> Index(string searchTerm)
     {
         try
         {
             ViewData["CurrentFilter"] = searchTerm;
 
-            // Get all books from service
             var livres = await _livreService.GetAllBooksAsync();
 
-            // Apply search filter if provided
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 searchTerm = searchTerm.Trim().ToLower();
@@ -38,7 +36,6 @@ public class LivreWebController : Controller // Hérite de Controller, pas de Co
                 ).ToList();
             }
 
-            // Order results by title
             var orderedLivres = livres.OrderBy(l => l.Titre ?? string.Empty).ToList();
             return View(orderedLivres);
         }
@@ -64,6 +61,13 @@ public class LivreWebController : Controller // Hérite de Controller, pas de Co
             {
                 return NotFound($"Livre avec l'ID {id} non trouvé.");
             }
+
+            // Afficher le message de succès si présent
+            if (TempData["SuccessMessage"] != null)
+            {
+                ViewBag.SuccessMessage = TempData["SuccessMessage"].ToString();
+            }
+
             return View(livre);
         }
         catch (ArgumentException ex)
@@ -73,7 +77,7 @@ public class LivreWebController : Controller // Hérite de Controller, pas de Co
         }
         catch (Exception ex)
         {
-            ViewBag.ErrorMessage = $"Une erreur est survenue lors de la récupération du livre : {ex.Message}";
+            ViewBag.ErrorMessage = $"Une erreur est survenue lors du chargement du livre : {ex.Message}";
             return View("Error");
         }
     }
@@ -81,48 +85,69 @@ public class LivreWebController : Controller // Hérite de Controller, pas de Co
     // GET: /LivreWeb/Create
     public IActionResult Create()
     {
-        return View(new LivreCreateViewModel());
+        var model = new LivreCreateViewModel();
+        return View(model);
     }
 
     // POST: /LivreWeb/Create
     [HttpPost]
-    [ValidateAntiForgeryToken] // Protège contre les attaques CSRF
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([FromForm] LivreCreateViewModel model)
     {
         if (!ModelState.IsValid)
         {
+            // Debug: Afficher les erreurs de validation
+            foreach (var error in ModelState)
+            {
+                Console.WriteLine($"Champ: {error.Key}");
+                foreach (var err in error.Value.Errors)
+                {
+                    Console.WriteLine($"  Erreur: {err.ErrorMessage}");
+                }
+            }
             return View(model);
         }
 
         try
         {
-            var newLivre = new Livre
+            var nouveauLivre = new Livre
             {
                 Titre = model.Titre,
                 Auteur = model.Auteur,
-                AnneePublication = model.AnneePublication,
                 Description = model.Description,
+                AnneePublication = model.AnneePublication,
                 Editeur = model.Editeur,
-                Etat = model.EtatLivre,
                 Categorie = model.Categorie,
+                Etat = model.EtatLivre
             };
 
-            var createdLivre = await _livreService.AddNewBookAsync(newLivre);
+            Console.WriteLine($"🔥 DEBUG - Création d'un nouveau livre");
+            Console.WriteLine($"🔥 Titre: {nouveauLivre.Titre}");
+            Console.WriteLine($"🔥 Auteur: {nouveauLivre.Auteur}");
 
-            return RedirectToAction(nameof(Details), new { id = createdLivre.Id });
+            var livreCreated = await _livreService.CreateBookAsync(nouveauLivre);
+
+            Console.WriteLine($"✅ Livre créé avec succès ! ID: {livreCreated.Id}");
+            TempData["SuccessMessage"] = "✅ Livre créé avec succès !";
+
+            return RedirectToAction(nameof(Details), new { id = livreCreated.Id });
         }
         catch (ArgumentException ex)
         {
+            Console.WriteLine($"❌ ArgumentException: {ex.Message}");
             ModelState.AddModelError(string.Empty, ex.Message);
             return View(model);
         }
         catch (InvalidOperationException ex)
         {
+            Console.WriteLine($"❌ InvalidOperationException: {ex.Message}");
             ModelState.AddModelError(string.Empty, ex.Message);
             return View(model);
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"❌ Exception générale: {ex.Message}");
+            Console.WriteLine($"❌ StackTrace: {ex.StackTrace}");
             ModelState.AddModelError(string.Empty, $"Une erreur inattendue est survenue lors de la création du livre : {ex.Message}");
             return View(model);
         }
@@ -149,8 +174,13 @@ public class LivreWebController : Controller // Hérite de Controller, pas de Co
                 Id = livre.Id,
                 Titre = livre.Titre,
                 Auteur = livre.Auteur,
+                Description = livre.Description,
                 AnneePublication = livre.AnneePublication,
+                Editeur = livre.Editeur,
+                Categorie = livre.Categorie,
+                EtatLivre = livre.Etat
             };
+
             return View(viewModel);
         }
         catch (ArgumentException ex)
@@ -177,6 +207,15 @@ public class LivreWebController : Controller // Hérite de Controller, pas de Co
 
         if (!ModelState.IsValid)
         {
+            // Debug: Afficher les erreurs de validation
+            foreach (var error in ModelState)
+            {
+                Console.WriteLine($"Champ: {error.Key}");
+                foreach (var err in error.Value.Errors)
+                {
+                    Console.WriteLine($"  Erreur: {err.ErrorMessage}");
+                }
+            }
             return View(model);
         }
 
@@ -187,8 +226,17 @@ public class LivreWebController : Controller // Hérite de Controller, pas de Co
                 Id = model.Id,
                 Titre = model.Titre,
                 Auteur = model.Auteur,
+                Description = model.Description,
                 AnneePublication = model.AnneePublication,
+                Editeur = model.Editeur,
+                Categorie = model.Categorie,
+                Etat = model.EtatLivre
             };
+
+            Console.WriteLine($" DEBUG - Tentative de mise à jour du livre ID: {id}");
+            Console.WriteLine($" Titre: {livreToUpdate.Titre}");
+            Console.WriteLine($" Auteur: {livreToUpdate.Auteur}");
+            Console.WriteLine($" État: {livreToUpdate.Etat}");
 
             var updatedLivre = await _livreService.UpdateBookAsync(id, livreToUpdate);
 
@@ -197,20 +245,27 @@ public class LivreWebController : Controller // Hérite de Controller, pas de Co
                 return NotFound($"Livre avec l'ID {id} non trouvé après tentative de mise à jour.");
             }
 
+            Console.WriteLine($" Livre mis à jour avec succès !");
+            TempData["SuccessMessage"] = " Livre modifié avec succès !";
+
             return RedirectToAction(nameof(Details), new { id = updatedLivre.Id });
         }
         catch (ArgumentException ex)
         {
+            Console.WriteLine($" ArgumentException: {ex.Message}");
             ModelState.AddModelError(string.Empty, ex.Message);
             return View(model);
         }
         catch (InvalidOperationException ex)
         {
+            Console.WriteLine($" InvalidOperationException: {ex.Message}");
             ModelState.AddModelError(string.Empty, ex.Message);
             return View(model);
         }
         catch (Exception ex)
         {
+            Console.WriteLine($" Exception générale: {ex.Message}");
+            Console.WriteLine($" StackTrace: {ex.StackTrace}");
             ModelState.AddModelError(string.Empty, $"Une erreur inattendue est survenue lors de la mise à jour du livre : {ex.Message}");
             return View(model);
         }
@@ -258,7 +313,12 @@ public class LivreWebController : Controller // Hérite de Controller, pas de Co
                 return BadRequest("L'ID du livre doit être supérieur à zéro.");
             }
 
+            Console.WriteLine($" DEBUG - Tentative de suppression du livre ID: {id}");
+
             await _livreService.DeleteBookAsync(id);
+
+            Console.WriteLine($" Livre supprimé avec succès !");
+            TempData["SuccessMessage"] = " Livre supprimé avec succès !";
 
             return RedirectToAction(nameof(Index));
         }
@@ -279,6 +339,7 @@ public class LivreWebController : Controller // Hérite de Controller, pas de Co
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"❌ Exception lors de la suppression: {ex.Message}");
             ViewBag.ErrorMessage = $"Une erreur inattendue est survenue lors de la suppression du livre : {ex.Message}";
             return View("Error");
         }
