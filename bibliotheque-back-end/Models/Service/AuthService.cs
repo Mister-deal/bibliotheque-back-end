@@ -23,8 +23,7 @@ public class AuthService : IAuthService
         {
             // Tenter de trouver l'utilisateur en tant qu'Employé
             Employe? employe = await _employeService.GetEmployeeByEmailAsync(email);
-            Membre? membre = null; // Initialiser à null
-
+            Membre? membre = null;
             bool isValidPassword = false;
             string? userId = null;
             string? userEmail = null;
@@ -61,12 +60,12 @@ public class AuthService : IAuthService
 
             if (!isValidPassword || (employe == null && membre == null))
             {
-                return null; // Retourne null pour indiquer l'échec de l'authentification
+                return null;
             }
 
             // --- Génération du token JWT si l'authentification est réussie ---
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-            var key = Encoding.ASCII.GetBytes(jwtSettings["Key"] ?? throw new InvalidOperationException("JWT Key is not configured."));
+            var jwtConfig = _configuration.GetSection("JwtConfig");
+            var key = Encoding.ASCII.GetBytes(jwtConfig["Key"] ?? throw new InvalidOperationException("JWT Key is not configured."));
 
             var claims = new List<Claim>
             {
@@ -94,9 +93,9 @@ public class AuthService : IAuthService
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["TokenValidityMins"] ?? "20")),
-                Issuer = jwtSettings["Issuer"],
-                Audience = jwtSettings["Audience"],
+                Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtConfig["TokenValidityMins"] ?? "20")),
+                Issuer = jwtConfig["Issuer"],
+                Audience = jwtConfig["Audience"],
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
