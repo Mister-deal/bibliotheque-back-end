@@ -12,15 +12,16 @@ public class EmpruntService : IEmpruntService
     private readonly IMembreRepository _membreRepository;
     private readonly BibliothequeDb _context;
     private readonly IEmployeRepository _employeRepository;
-    private IEmpruntService _empruntServiceImplementation;
+    // ✅ SUPPRIMÉ : private IEmpruntService _empruntServiceImplementation; (inutile)
 
     public EmpruntService(IEmpruntRepository empruntRepository, ILivreRepository livreRepository,
-        IMembreRepository membreRepository, BibliothequeDb context)
+        IMembreRepository membreRepository, BibliothequeDb context, IEmployeRepository employeRepository) // ✅ AJOUTÉ employeRepository
     {
         _empruntRepository = empruntRepository;
         _livreRepository = livreRepository;
         _membreRepository = membreRepository;
         _context = context;
+        _employeRepository = employeRepository; // ✅ AJOUTÉ
     }
 
     public async Task<IEnumerable<Emprunt>> GetAllEmpruntsAsync()
@@ -35,13 +36,12 @@ public class EmpruntService : IEmpruntService
             throw new ArgumentException("L'ID du membre doit être supérieur à zéro.", nameof(membreId));
         }
 
-        // Vérifiez si le membre existe si nécessaire
         if (!await _membreRepository.CheckIfMemberExistsAsync(membreId))
         {
             throw new KeyNotFoundException($"Le membre avec l'ID {membreId} n'existe pas.");
         }
         var allEmprunts = await _empruntRepository.GetAllEmpruntsAsync();
-        return allEmprunts.Where(e => e.Id == membreId);
+        return allEmprunts.Where(e => e.MembreId == membreId); // ✅ CORRIGÉ : e.Id → e.MembreId
     }
 
     public async Task<IEnumerable<Emprunt>> GetEmpruntsByLivreIdAsync(int livreId)
@@ -73,7 +73,7 @@ public class EmpruntService : IEmpruntService
     public async Task<IEnumerable<Emprunt>> GetActiveEmpruntsAsync()
     {
         var allEmprunts = await _empruntRepository.GetAllEmpruntsAsync();
-        return allEmprunts.Where(e => e.DateRetour > DateOnly.FromDateTime(DateTime.Now) && e.DateRetour == null);
+        return allEmprunts.Where(e => e.DateRetour == null); // ✅ CORRIGÉ : logique simplifiée
     }
 
     public async Task<Emprunt> CreateEmpruntAsync(int membreId, List<int> livreIds, DateOnly? dateRetour,
@@ -89,7 +89,8 @@ public class EmpruntService : IEmpruntService
             throw new ArgumentException("Au moins un ID de livre est requis pour créer un emprunt.", nameof(livreIds));
         }
 
-        if (dateRetour <= DateOnly.FromDateTime(DateTime.Now))
+        // ✅ CORRIGÉ : Validation de date retour optionnelle
+        if (dateRetour.HasValue && dateRetour <= DateOnly.FromDateTime(DateTime.Now))
         {
             throw new ArgumentException("La date de retour doit être future.", nameof(dateRetour));
         }
@@ -100,7 +101,6 @@ public class EmpruntService : IEmpruntService
             throw new KeyNotFoundException($"Le membre avec l'ID {membreId} n'existe pas.");
         }
 
-
         var livresEmpruntes = new List<EmpruntLivre>();
         foreach (var livreId in livreIds)
         {
@@ -109,20 +109,20 @@ public class EmpruntService : IEmpruntService
             {
                 throw new KeyNotFoundException($"Le livre avec l'ID {livreId} n'existe pas.");
             }
-            
+
             livresEmpruntes.Add(new EmpruntLivre { IdLivre = livre.Id, livre = livre });
         }
 
         var newEmprunt = new Emprunt
         {
-            Id = membreId,
+            MembreId = membreId, // ✅ CORRIGÉ : Id → MembreId
             DateEmprunt = DateOnly.FromDateTime(DateTime.Now),
             DateRetour = dateRetour,
             LivresEmpruntes = livresEmpruntes
         };
 
         await _empruntRepository.AddEmpruntAsync(newEmprunt);
-        await _context.SaveChangesAsync(); // Sauvegarde asynchrone des changements
+        await _context.SaveChangesAsync();
 
         return newEmprunt;
     }
@@ -134,11 +134,19 @@ public class EmpruntService : IEmpruntService
             throw new ArgumentException("Les IDs d'emprunt, de livre et d'employé doivent être supérieurs à zéro.");
         }
 
+        // ✅ AJOUTÉ : Validation de l'employé
+        var employe = await _employeRepository.GetEmployeeAsync(employeValidationId);
+        if (employe == null)
+        {
+            throw new KeyNotFoundException($"L'employé avec l'ID {employeValidationId} n'existe pas.");
+        }
+
         var emprunt = await _empruntRepository.GetEmpruntByIdAsync(empruntId);
         if (emprunt == null)
         {
-            return null; // Emprunt non trouvé
+            return null;
         }
+
         var empruntLivre = emprunt.LivresEmpruntes.FirstOrDefault(el => el.IdLivre == livreId);
         if (empruntLivre == null)
         {
@@ -146,75 +154,81 @@ public class EmpruntService : IEmpruntService
                 $"Le livre avec l'ID {livreId} n'appartient pas à l'emprunt {empruntId}.");
         }
 
+        // ✅ AJOUTÉ : Marquer le livre comme disponible
+        if (empruntLivre.livre != null && empruntLivre.livre.Etat != EtatLivre.Disponible)
+        {
+            empruntLivre.livre.Etat = EtatLivre.Disponible;
+            await _livreRepository.UpdateBookAsync(empruntLivre.livre);
+        }
+
         await _empruntRepository.UpdateEmpruntAsync(emprunt);
-        await _context.SaveChangesAsync(); // Sauvegarde asynchrone
+        await _context.SaveChangesAsync();
 
         return emprunt;
     }
 
-   public async Task<Emprunt?> ReturnAllBooksForEmpruntAsync(int empruntId, int employeValidationId)
+    public async Task<Emprunt?> ReturnAllBooksForEmpruntAsync(int empruntId, int employeValidationId)
+    {
+        if (empruntId <= 0 || employeValidationId <= 0)
         {
-            if (empruntId <= 0 || employeValidationId <= 0)
-            {
-                throw new ArgumentException("Les IDs d'emprunt et d'employé doivent être supérieurs à zéro.");
-            }
-
-            var employe = await _employeRepository.GetEmployeeAsync(employeValidationId);
-            if (employe == null)
-            {
-                throw new ArgumentException($"L'employé avec l'ID {employeValidationId} n'existe pas.");
-            }
-
-            var emprunt = await _context.Emprunts
-                                        .Include(e => e.LivresEmpruntes)
-                                            .ThenInclude(el => el.livre)
-                                        .FirstOrDefaultAsync(e => e.Id == empruntId);
-
-            if (emprunt == null)
-            {
-                return null;
-            }
-            if (emprunt.DateRetour.HasValue)
-            {
-                throw new InvalidOperationException($"L'emprunt {empruntId} est déjà marqué comme entièrement retourné.");
-            }
-
-            bool atLeastOneNewBookReturned = false;
-
-            foreach (var empruntLivre in emprunt.LivresEmpruntes)
-            {
-               
-                if (empruntLivre.livre != null)
-                {
-                    if (empruntLivre.livre.Etat != EtatLivre.Disponible)
-                    {
-                        empruntLivre.livre.Etat = EtatLivre.Disponible;
-                        
-                        await _livreRepository.UpdateBookAsync(empruntLivre.livre);
-                        atLeastOneNewBookReturned = true;
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"Avertissement: Livre associé à l'EmpruntLivre (ID: {empruntLivre.Id}) est introuvable lors du retour de tous les livres.");
-                }
-            }
-
-            if (!atLeastOneNewBookReturned && emprunt.LivresEmpruntes.Any())
-            {
-                throw new InvalidOperationException($"Tous les livres de l'emprunt {empruntId} étaient déjà marqués comme disponibles.");
-            }
-            else if (!emprunt.LivresEmpruntes.Any())
-            {
-                throw new InvalidOperationException($"L'emprunt {empruntId} ne contient aucun livre.");
-            }
-            
-            emprunt.DateRetour = DateOnly.FromDateTime(DateTime.UtcNow);
-
-            await _context.SaveChangesAsync();
-
-            return emprunt;
+            throw new ArgumentException("Les IDs d'emprunt et d'employé doivent être supérieurs à zéro.");
         }
+
+        var employe = await _employeRepository.GetEmployeeAsync(employeValidationId);
+        if (employe == null)
+        {
+            throw new ArgumentException($"L'employé avec l'ID {employeValidationId} n'existe pas.");
+        }
+
+        var emprunt = await _context.Emprunts
+                                    .Include(e => e.LivresEmpruntes)
+                                        .ThenInclude(el => el.livre)
+                                    .FirstOrDefaultAsync(e => e.Id == empruntId);
+
+        if (emprunt == null)
+        {
+            return null;
+        }
+        if (emprunt.DateRetour.HasValue)
+        {
+            throw new InvalidOperationException($"L'emprunt {empruntId} est déjà marqué comme entièrement retourné.");
+        }
+
+        bool atLeastOneNewBookReturned = false;
+
+        foreach (var empruntLivre in emprunt.LivresEmpruntes)
+        {
+            if (empruntLivre.livre != null)
+            {
+                if (empruntLivre.livre.Etat != EtatLivre.Disponible)
+                {
+                    empruntLivre.livre.Etat = EtatLivre.Disponible;
+
+                    await _livreRepository.UpdateBookAsync(empruntLivre.livre);
+                    atLeastOneNewBookReturned = true;
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Avertissement: Livre associé à l'EmpruntLivre (ID: {empruntLivre.Id}) est introuvable lors du retour de tous les livres.");
+            }
+        }
+
+        if (!atLeastOneNewBookReturned && emprunt.LivresEmpruntes.Any())
+        {
+            throw new InvalidOperationException($"Tous les livres de l'emprunt {empruntId} étaient déjà marqués comme disponibles.");
+        }
+        else if (!emprunt.LivresEmpruntes.Any())
+        {
+            throw new InvalidOperationException($"L'emprunt {empruntId} ne contient aucun livre.");
+        }
+
+        emprunt.DateRetour = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        await _context.SaveChangesAsync();
+
+        return emprunt;
+    }
 
     public async Task<Emprunt?> DeleteEmpruntAsync(int id)
     {
@@ -226,18 +240,69 @@ public class EmpruntService : IEmpruntService
         var existingEmprunt = await _empruntRepository.GetEmpruntByIdAsync(id);
         if (existingEmprunt == null)
         {
-            return null; // Emprunt non trouvé
+            return null;
         }
-        
 
         await _empruntRepository.DeleteEmpruntAsync(existingEmprunt);
-        await _context.SaveChangesAsync(); // Sauvegarde asynchrone des changements
+        await _context.SaveChangesAsync();
 
-        return existingEmprunt; // Retourne l'emprunt qui a été supprimé
+        return existingEmprunt;
     }
 
     public async Task<bool> EmpruntExistsAsync(int id)
     {
         return await _empruntRepository.CheckIfEmpruntExistsAsync(id);
+    }
+
+    // Partie Dashboard 
+    public async Task<int> GetTodayLoansCountAsync()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        return await _context.Emprunts
+            .CountAsync(e => e.DateEmprunt == today);
+    }
+
+    public async Task<int> GetOverdueReturnsCountAsync()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var maxLoanDays = 14;
+
+        return await _context.Emprunts
+            .CountAsync(e => e.DateRetour == null &&
+                       e.DateEmprunt.AddDays(maxLoanDays) < today);
+    }
+
+    public async Task<IEnumerable<dynamic>> GetRecentActivitiesAsync()
+    {
+        return await _context.Emprunts
+            .Include(e => e.Membre)
+            .Include(e => e.LivresEmpruntes)
+                .ThenInclude(el => el.livre)
+            .OrderByDescending(e => e.DateEmprunt)
+            .Take(10)
+            .Select(e => new
+            {
+                Title = $"Emprunt par {e.Membre.Prenom} {e.Membre.Nom}",
+                Description = $"{e.LivresEmpruntes.Count()} livre(s) emprunté(s)",
+                Time = e.DateEmprunt.ToDateTime(TimeOnly.MinValue),
+                Icon = "book"
+            })
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<dynamic>> GetPopularBooksAsync()
+    {
+        return await _context.EmpruntLivres
+            .Include(el => el.livre)
+            .GroupBy(el => new { el.livre.Id, el.livre.Titre, el.livre.Auteur })
+            .Select(g => new
+            {
+                Title = g.Key.Titre,
+                Author = g.Key.Auteur,
+                BorrowCount = g.Count()
+            })
+            .OrderByDescending(x => x.BorrowCount)
+            .Take(5)
+            .ToListAsync();
     }
 }

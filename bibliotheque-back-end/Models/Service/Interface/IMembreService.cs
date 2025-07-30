@@ -12,4 +12,7 @@ public interface IMembreService
     Task<Membre?> DeleteMemberAsync(int id); // Peut retourner null si non trouvé
     
     Task<bool> MemberExistsAsync(int id);
+
+    // Partie Dashboard
+    Task<int> GetActiveMembersCountAsync();
 }
