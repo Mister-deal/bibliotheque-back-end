@@ -1,6 +1,7 @@
 ﻿using bibliotheque_back_end.Data;
 using bibliotheque_back_end.Models.repositery;
 using bibliotheque_back_end.Models.Service.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace bibliotheque_back_end.Models.Service;
 
@@ -10,6 +11,8 @@ public class EmpruntService : IEmpruntService
     private readonly ILivreRepository _livreRepository;
     private readonly IMembreRepository _membreRepository;
     private readonly BibliothequeDb _context;
+    private readonly IEmployeRepository _employeRepository;
+    private IEmpruntService _empruntServiceImplementation;
 
     public EmpruntService(IEmpruntRepository empruntRepository, ILivreRepository livreRepository,
         IMembreRepository membreRepository, BibliothequeDb context)
@@ -148,6 +151,70 @@ public class EmpruntService : IEmpruntService
 
         return emprunt;
     }
+
+   public async Task<Emprunt?> ReturnAllBooksForEmpruntAsync(int empruntId, int employeValidationId)
+        {
+            if (empruntId <= 0 || employeValidationId <= 0)
+            {
+                throw new ArgumentException("Les IDs d'emprunt et d'employé doivent être supérieurs à zéro.");
+            }
+
+            var employe = await _employeRepository.GetEmployeeAsync(employeValidationId);
+            if (employe == null)
+            {
+                throw new ArgumentException($"L'employé avec l'ID {employeValidationId} n'existe pas.");
+            }
+
+            var emprunt = await _context.Emprunts
+                                        .Include(e => e.LivresEmpruntes)
+                                            .ThenInclude(el => el.livre)
+                                        .FirstOrDefaultAsync(e => e.Id == empruntId);
+
+            if (emprunt == null)
+            {
+                return null;
+            }
+            if (emprunt.DateRetour.HasValue)
+            {
+                throw new InvalidOperationException($"L'emprunt {empruntId} est déjà marqué comme entièrement retourné.");
+            }
+
+            bool atLeastOneNewBookReturned = false;
+
+            foreach (var empruntLivre in emprunt.LivresEmpruntes)
+            {
+               
+                if (empruntLivre.livre != null)
+                {
+                    if (empruntLivre.livre.Etat != EtatLivre.Disponible)
+                    {
+                        empruntLivre.livre.Etat = EtatLivre.Disponible;
+                        
+                        await _livreRepository.UpdateBookAsync(empruntLivre.livre);
+                        atLeastOneNewBookReturned = true;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Avertissement: Livre associé à l'EmpruntLivre (ID: {empruntLivre.Id}) est introuvable lors du retour de tous les livres.");
+                }
+            }
+
+            if (!atLeastOneNewBookReturned && emprunt.LivresEmpruntes.Any())
+            {
+                throw new InvalidOperationException($"Tous les livres de l'emprunt {empruntId} étaient déjà marqués comme disponibles.");
+            }
+            else if (!emprunt.LivresEmpruntes.Any())
+            {
+                throw new InvalidOperationException($"L'emprunt {empruntId} ne contient aucun livre.");
+            }
+            
+            emprunt.DateRetour = DateOnly.FromDateTime(DateTime.UtcNow);
+
+            await _context.SaveChangesAsync();
+
+            return emprunt;
+        }
 
     public async Task<Emprunt?> DeleteEmpruntAsync(int id)
     {
