@@ -25,12 +25,15 @@ public class ReservationController: ControllerBase
     )]
     [SwaggerResponse(404, "reservations non trouvées")]
     [SwaggerResponse(400, "Requête invalide (ID négatif ou zéro)")] // Ajout du 400
-    [SwaggerResponse(200, "Liste des reservations retournée avec succès", typeof(IEnumerable<Reservation>))]
+    [SwaggerResponse(200, "Liste des reservations retournée avec succès", typeof(IEnumerable<Reservation>))] 
     public async Task<ActionResult<IEnumerable<Reservation>>> GetReservations()
     {
         var reservations = await _reservationService.GetAllReservationsAsync();
         return Ok(reservations);
     }
+    
+    //get : api/reservations/{id}
+    //testé
     [HttpGet("{id}")]
     [SwaggerOperation(
         Summary = "Récupère une reservation par son identifiant",
@@ -56,44 +59,74 @@ public class ReservationController: ControllerBase
         }
     }
     
-    public async Task<ActionResult<IEnumerable<Reservation>>> GetActiveReservationById()
-    {
-        var activeReservations = await _reservationService.GetActiveReservationsAsync();
-        return Ok(activeReservations);
-    }
+    //get : api/reservations/actif
+    //a tester
+    [HttpGet("actif")]
+    [SwaggerOperation(
+        Summary = "Récupère les reservations actives",
+        Description = "Permet de récupérer les reservations actives"
+    )]
+    [SwaggerResponse(200, "reservations trouvées", typeof(Livre))]
+    [SwaggerResponse(404, "reservations non trouvées")]
+    [SwaggerResponse(400, "Requête invalide (ID négatif ou zéro)")] // Ajout du 400
+        public async Task<ActionResult<IEnumerable<Reservation>>> GetActiveReservations()
+        {
+            var activeReservations = await _reservationService.GetActiveReservationsAsync();
+            return Ok(activeReservations);
+        }
 
-    public async Task<ActionResult<Reservation>> GetReservationByMemberId(int memberId)
-    {
-        try
+        //get : api/reservations/membre/{id}
+        //a tester
+        [HttpGet("membre/{memberId}")]
+        [SwaggerOperation(
+            Summary = "Récupère une reservation par l'identifiant de son membre",
+            Description = "Permet de récupérer une réservation spécifique via l'identifiant de son membre"
+        )]
+        [SwaggerResponse(200, "reservation trouvée", typeof(Livre))]
+        [SwaggerResponse(404, "reservation non trouvée")]
+        [SwaggerResponse(400, "Requête invalide (ID négatif ou zéro)")] // Ajout du 400
+        public async Task<ActionResult<IEnumerable<Reservation>>> GetReservationByMemberId(int memberId)
         {
-            var reservationMemberId = await _reservationService.GetReservationsByMembreIdAsync(memberId);
-            if (reservationMemberId == null)
+            try
             {
-                return NotFound();
+                var reservationMemberId = await _reservationService.GetReservationsByMembreIdAsync(memberId);
+                if (reservationMemberId == null || !reservationMemberId.Any())
+                {
+                    return NotFound();
+                }
+                return Ok(reservationMemberId);
             }
-            return Ok(reservationMemberId);
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
-    }
-    
-    public async Task<ActionResult<Reservation>> GetReservationByLivreId(int livreId)
-    {
-        try
-        {
-            var reservationLivreId = await _reservationService.GetReservationsByLivreIdAsync(livreId);
-            if (reservationLivreId == null)
+            catch (ArgumentException e)
             {
-                return NotFound();
+                return BadRequest(e.Message);
             }
-            return Ok(reservationLivreId);
         }
-        catch (Exception e)
+
+        //get : api/reservations/livre/{id}
+        //a tester
+        [HttpGet("livre/{livreId}")]
+        [SwaggerOperation(
+            Summary = "Récupère une reservation par l'identifiant de livre",
+            Description = "Permet de récupérer une réservation spécifique via l'identifiant de livre"
+        )]
+        [SwaggerResponse(200, "reservation trouvée", typeof(Livre))]
+        [SwaggerResponse(404, "reservation non trouvée")]
+        [SwaggerResponse(400, "Requête invalide (ID négatif ou zéro)")] // Ajout du 400
+        public async Task<ActionResult<IEnumerable<Reservation>>> GetReservationByLivreId(int livreId)
         {
-            return BadRequest(e.Message);
+            try
+            {
+                var reservationLivreId = await _reservationService.GetReservationsByLivreIdAsync(livreId);
+                if (reservationLivreId == null || !reservationLivreId.Any())
+                {
+                    return NotFound();
+                }
+                return Ok(reservationLivreId);
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
-    }
     
 }
