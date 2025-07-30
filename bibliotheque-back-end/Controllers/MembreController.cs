@@ -5,7 +5,6 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace bibliotheque_back_end.Controllers;
 
-
 [ApiController]
 [Route("api/[controller]")]
 [SwaggerTag("Contrôleur de gestion des membres de la bibliothèque")]
@@ -19,9 +18,6 @@ public class MembreController : ControllerBase
     }
 
     //## Récupérer tous les membres
-
-    //testé
-    // GET: api/Membres
     [HttpGet]
     [SwaggerOperation(
         Summary = "Récupère tous les membres",
@@ -38,14 +34,11 @@ public class MembreController : ControllerBase
         }
         catch (Exception ex)
         {
-            // Il est recommandé de logger l'exception ici pour le débogage.
             return StatusCode(500, $"Une erreur interne est survenue lors de la récupération des membres : {ex.Message}");
         }
     }
 
     //## Récupérer un membre par ID
-
-    // GET: api/Membres/{id}
     [HttpGet("{id}")]
     [SwaggerOperation(
         Summary = "Récupère un membre par son identifiant",
@@ -66,7 +59,7 @@ public class MembreController : ControllerBase
             }
             return Ok(membre);
         }
-        catch (ArgumentException ex) // Catch spécifique pour l'ID <= 0 du service
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -77,8 +70,6 @@ public class MembreController : ControllerBase
     }
 
     //## Récupérer un membre par email
-
-    // GET: api/Membres/byEmail?email={email}
     [HttpGet("byEmail")]
     [SwaggerOperation(
         Summary = "Récupère un membre par son adresse email",
@@ -99,7 +90,7 @@ public class MembreController : ControllerBase
             }
             return Ok(membre);
         }
-        catch (ArgumentException ex) // Catch spécifique pour l'email vide/nul du service
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -110,8 +101,6 @@ public class MembreController : ControllerBase
     }
 
     //## Ajouter un nouveau membre
-
-    // POST: api/Membres
     [HttpPost]
     [SwaggerOperation(
         Summary = "Ajoute un nouveau membre",
@@ -132,25 +121,23 @@ public class MembreController : ControllerBase
         try
         {
             var createdMember = await _membreService.AddMemberAsync(membre, dataPassword);
-            // Utilise nameof(GetMembreById) pour la route GET appropriée.
             return CreatedAtAction(nameof(GetMembreById), new { id = createdMember.Id }, createdMember);
         }
-        catch (ArgumentException ex) // Données invalides (email, nom, prénom, mot de passe manquants)
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
-        catch (InvalidOperationException ex) // Membre avec le même email déjà existant
+        catch (InvalidOperationException ex)
         {
-            return Conflict(ex.Message); // Utilisez 409 Conflict pour les doublons
+            return Conflict(ex.Message);
         }
         catch (Exception ex)
         {
             return StatusCode(500, $"Une erreur interne est survenue lors de l'ajout du membre : {ex.Message}");
         }
     }
-    //## Mettre à jour un membre existant
 
-    // PUT: api/Membres/{id}
+    //## Mettre à jour un membre existant
     [HttpPut("{id}")]
     [SwaggerOperation(
         Summary = "Met à jour un membre existant",
@@ -167,7 +154,7 @@ public class MembreController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        // Le service gère déjà la validation id != updatedMember.Id, mais une vérification précoce ici peut être utile.
+
         if (id != membre.Id)
         {
             return BadRequest("L'ID du membre dans l'URL ne correspond pas à l'ID dans le corps de la requête.");
@@ -182,7 +169,7 @@ public class MembreController : ControllerBase
             }
             return Ok(updatedMember);
         }
-        catch (ArgumentException ex) // Pour les validations d'ID ou de données
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -193,14 +180,12 @@ public class MembreController : ControllerBase
     }
 
     //## Supprimer un membre
-
-    // DELETE: api/Membres/{id}
     [HttpDelete("{id}")]
     [SwaggerOperation(
         Summary = "Supprime un membre par son identifiant",
         Description = "Supprime définitivement un membre à partir de son identifiant."
     )]
-    [SwaggerResponse(200, "Membre supprimé avec succès.", typeof(Membre))] // 200 OK avec l'objet supprimé
+    [SwaggerResponse(200, "Membre supprimé avec succès.", typeof(Membre))]
     [SwaggerResponse(404, "Membre non trouvé.")]
     [SwaggerResponse(400, "Requête invalide (membre ayant des emprunts actifs).")]
     [SwaggerResponse(500, "Erreur interne du serveur lors de la suppression du membre.")]
@@ -213,13 +198,13 @@ public class MembreController : ControllerBase
             {
                 return NotFound($"Membre avec l'ID {id} non trouvé.");
             }
-            return Ok(deletedMember); // Retourne le membre supprimé avec 200 OK
+            return Ok(deletedMember);
         }
-        catch (ArgumentException ex) // ID <= 0
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
-        catch (InvalidOperationException ex) // Membre ayant des emprunts actifs
+        catch (InvalidOperationException ex)
         {
             return BadRequest(ex.Message);
         }
