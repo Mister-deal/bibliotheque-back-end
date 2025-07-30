@@ -36,4 +36,8 @@ public class LivreCreateViewModel
         [Required(ErrorMessage = "La catégorie est requise.")]
         [SwaggerSchema("Catégorie du livre (ex: Roman, Essai, BD...)")]
         public Categorie Categorie { get; set; }
+        
+        [Required(ErrorMessage = "L'état est requis.")]
+        [SwaggerSchema("etat du livre (ex: Disponible, emprunté, endommagé...)")]
+        public EtatLivre EtatLivre { get; set; }
     }

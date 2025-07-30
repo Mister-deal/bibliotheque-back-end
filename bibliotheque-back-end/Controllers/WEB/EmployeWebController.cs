@@ -87,7 +87,8 @@ namespace bibliotheque_back_end.Controllers.WEB
                     Nom = model.Nom,
                     Prenom = model.Prenom,
                     Email = model.Email,
-                    Role = model.Role 
+                    Role = model.Role,
+                    MotDePasse = model.MotDePasse,
                 };
 
                 var createdEmploye = await _employeService.AddEmployeeAsync(newEmploye, model.MotDePasse);

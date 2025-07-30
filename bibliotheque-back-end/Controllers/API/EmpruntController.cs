@@ -134,7 +134,7 @@ namespace bibliotheque_back_end.Controllers
             catch (ArgumentException ex) { return BadRequest(ex.Message); }
             catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
         }
-        /*
+        
         // PUT: api/emprunts/{id}/retour
         [HttpPut("{id:int}/retour")]
         [SwaggerOperation(Summary = "Retourne tous les livres d’un emprunt (clôture)")]
@@ -144,13 +144,13 @@ namespace bibliotheque_back_end.Controllers
         {
             try
             {
-                var updated = _empruntService.Re(id, employeValidationId);
+                var updated = _empruntService.ReturnAllBooksForEmpruntAsync(id, employeValidationId);
                 return Ok(updated);
             }
             catch (ArgumentException ex) { return BadRequest(ex.Message); }
             catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
         }
-*/
+
         // DELETE: api/emprunts/{id}
         [HttpDelete("{id:int}")]
         [SwaggerOperation(Summary = "Supprime un emprunt")]
