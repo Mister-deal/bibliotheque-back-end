@@ -5,7 +5,6 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace bibliotheque_back_end.Controllers;
 
-
 [ApiController]
 [Route("api/[controller]")]
 [SwaggerTag("Contrôleur de gestion des membres de la bibliothèque")]
@@ -19,9 +18,6 @@ public class MembreController : ControllerBase
     }
 
     //## Récupérer tous les membres
-
-    //testé
-    // GET: api/Membres
     [HttpGet]
     [SwaggerOperation(
         Summary = "Récupère tous les membres",
@@ -43,8 +39,6 @@ public class MembreController : ControllerBase
     }
 
     //## Récupérer un membre par ID
-
-    // GET: api/Membres/{id}
     [HttpGet("{id}")]
     [SwaggerOperation(
         Summary = "Récupère un membre par son identifiant",
@@ -76,8 +70,6 @@ public class MembreController : ControllerBase
     }
 
     //## Récupérer un membre par email
-
-    // GET: api/Membres/byEmail?email={email}
     [HttpGet("byEmail")]
     [SwaggerOperation(
         Summary = "Récupère un membre par son adresse email",
@@ -109,8 +101,6 @@ public class MembreController : ControllerBase
     }
 
     //## Ajouter un nouveau membre
-
-    // POST: api/Membres
     [HttpPost]
     [SwaggerOperation(
         Summary = "Ajoute un nouveau membre",
@@ -146,9 +136,8 @@ public class MembreController : ControllerBase
             return StatusCode(500, $"Une erreur interne est survenue lors de l'ajout du membre : {ex.Message}");
         }
     }
-    //## Mettre à jour un membre existant
 
-    // PUT: api/Membres/{id}
+    //## Mettre à jour un membre existant
     [HttpPut("{id}")]
     [SwaggerOperation(
         Summary = "Met à jour un membre existant",
@@ -190,14 +179,12 @@ public class MembreController : ControllerBase
     }
 
     //## Supprimer un membre
-
-    // DELETE: api/Membres/{id}
     [HttpDelete("{id}")]
     [SwaggerOperation(
         Summary = "Supprime un membre par son identifiant",
         Description = "Supprime définitivement un membre à partir de son identifiant."
     )]
-    [SwaggerResponse(200, "Membre supprimé avec succès.", typeof(Membre))] // 200 OK avec l'objet supprimé
+    [SwaggerResponse(200, "Membre supprimé avec succès.", typeof(Membre))]
     [SwaggerResponse(404, "Membre non trouvé.")]
     [SwaggerResponse(400, "Requête invalide (membre ayant des emprunts actifs).")]
     [SwaggerResponse(500, "Erreur interne du serveur lors de la suppression du membre.")]
@@ -216,7 +203,7 @@ public class MembreController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
-        catch (InvalidOperationException ex) // Membre ayant des emprunts actifs
+        catch (InvalidOperationException ex)
         {
             return BadRequest(ex.Message);
         }
