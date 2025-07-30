@@ -117,4 +117,38 @@ public class LivreService : ILivreService
         var allBooks = await _livreRepository.GetAllBooksAsync();
         return allBooks.Where(x => x.Etat == EtatLivre.Disponible);
     }
+
+    // Partie Dashboard
+    public async Task<Livre> CreateBookAsync(Livre livre)
+    {
+        if (livre == null)
+        {
+            throw new ArgumentNullException(nameof(livre), "Le livre ne peut pas être null.");
+        }
+
+        // Validation des données
+        if (string.IsNullOrWhiteSpace(livre.Titre))
+        {
+            throw new ArgumentException("Le titre du livre est requis.", nameof(livre));
+        }
+
+        if (string.IsNullOrWhiteSpace(livre.Auteur))
+        {
+            throw new ArgumentException("L'auteur du livre est requis.", nameof(livre));
+        }
+
+        try
+        {
+            _context.Livres.Add(livre);
+            await _context.SaveChangesAsync();
+
+            Console.WriteLine($" Livre créé avec ID: {livre.Id}");
+            return livre;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($" Erreur lors de la création: {ex.Message}");
+            throw new InvalidOperationException($"Erreur lors de la création du livre : {ex.Message}", ex);
+        }
+    }
 }
