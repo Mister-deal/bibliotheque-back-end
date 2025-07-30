@@ -90,7 +90,7 @@ public class EmpruntService : IEmpruntService
         // return allEmprunts.Where(e => e.IsActive);
     }
 
-    public async Task<Emprunt> CreateEmpruntAsync(int membreId, List<int> livreIds, DateOnly dateRetour,
+    public async Task<Emprunt> CreateEmpruntAsync(int membreId, List<int> livreIds, DateOnly? dateRetour,
         int employeValidationId)
     {
         if (membreId <= 0 || employeValidationId <= 0)
