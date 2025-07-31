@@ -27,8 +27,7 @@ namespace bibliotheque_back_end.Models
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Le mot de passe est requis.")]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$",
-            ErrorMessage = "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.")]
+        [StringLength(255)]
         [SwaggerSchema("Mot de passe de l'employé")]
         public string MotDePasse { get; set; } = string.Empty;
 
