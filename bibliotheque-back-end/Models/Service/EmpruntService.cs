@@ -1,4 +1,5 @@
 ﻿using bibliotheque_back_end.Data;
+using bibliotheque_back_end.Models.DTO;
 using bibliotheque_back_end.Models.repositery;
 using bibliotheque_back_end.Models.Service.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -76,53 +77,67 @@ public class EmpruntService : IEmpruntService
         return allEmprunts.Where(e => e.DateRetour == null); // ✅ CORRIGÉ : logique simplifiée
     }
 
-    public async Task<Emprunt> CreateEmpruntAsync(int membreId, List<int> livreIds, DateOnly? dateRetour,
-        int employeValidationId)
+    public async Task<Emprunt> CreateEmpruntAsync(EmpruntCreateDto  empruntCreateDto)
     {
-        if (membreId <= 0 || employeValidationId <= 0)
+       if (empruntCreateDto == null)
+        {
+            throw new ArgumentNullException(nameof(empruntCreateDto), "Emprunt creation data cannot be null.");
+        }
+        if (empruntCreateDto.MembreId <= 0 || empruntCreateDto.EmployeValidationId <= 0)
         {
             throw new ArgumentException("L'ID du membre et de l'employé doivent être supérieurs à zéro.");
         }
-
-        if (livreIds == null || !livreIds.Any())
+        if (empruntCreateDto.LivreIds == null || !empruntCreateDto.LivreIds.Any())
         {
-            throw new ArgumentException("Au moins un ID de livre est requis pour créer un emprunt.", nameof(livreIds));
+            throw new ArgumentException("Au moins un ID de livre est requis pour créer un emprunt.", nameof(empruntCreateDto.LivreIds));
         }
 
-        // ✅ CORRIGÉ : Validation de date retour optionnelle
-        if (dateRetour.HasValue && dateRetour <= DateOnly.FromDateTime(DateTime.Now))
+        if (empruntCreateDto.DateRetour.HasValue && empruntCreateDto.DateRetour <= DateOnly.FromDateTime(DateTime.Now))
         {
-            throw new ArgumentException("La date de retour doit être future.", nameof(dateRetour));
+            throw new ArgumentException("La date de retour prévue doit être future.", nameof(empruntCreateDto.DateRetour));
         }
 
-        var membre = await _membreRepository.GetMemberAsync(membreId);
+        var membre = await _membreRepository.GetMemberAsync(empruntCreateDto.MembreId);
         if (membre == null)
         {
-            throw new KeyNotFoundException($"Le membre avec l'ID {membreId} n'existe pas.");
+            throw new KeyNotFoundException($"Le membre avec l'ID {empruntCreateDto.MembreId} n'existe pas.");
         }
 
+        var employe = await _employeRepository.GetEmployeeAsync(empruntCreateDto.EmployeValidationId);
+        if (employe == null)
+        {
+            throw new KeyNotFoundException($"L'employé avec l'ID {empruntCreateDto.EmployeValidationId} n'existe pas.");
+        }
+
+
         var livresEmpruntes = new List<EmpruntLivre>();
-        foreach (var livreId in livreIds)
+        foreach (var livreId in empruntCreateDto.LivreIds)
         {
             var livre = await _livreRepository.GetBookByIdAsync(livreId);
             if (livre == null)
             {
                 throw new KeyNotFoundException($"Le livre avec l'ID {livreId} n'existe pas.");
             }
+            if (livre.Etat != EtatLivre.Disponible)
+            {
+                throw new InvalidOperationException($"Le livre '{livre.Titre}' (ID: {livre.Id}) n'est pas disponible pour l'emprunt. Son état est : {livre.Etat}.");
+            }
+            livre.Etat = EtatLivre.Emprunte; // Marquer le livre comme emprunté
+            await _livreRepository.UpdateBookAsync(livre); // Mettre à jour l'état du livre dans la DB
 
             livresEmpruntes.Add(new EmpruntLivre { IdLivre = livre.Id, livre = livre });
         }
 
         var newEmprunt = new Emprunt
         {
-            MembreId = membreId, // ✅ CORRIGÉ : Id → MembreId
+            MembreId = empruntCreateDto.MembreId,
             DateEmprunt = DateOnly.FromDateTime(DateTime.Now),
-            DateRetour = dateRetour,
-            LivresEmpruntes = livresEmpruntes
+            DateRetour = empruntCreateDto.DateRetour,
+            LivresEmpruntes = livresEmpruntes,
         };
 
         await _empruntRepository.AddEmpruntAsync(newEmprunt);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(); // Le SaveChanges est souvent au niveau du service ou de l'unité de travail.
 
         return newEmprunt;
     }
