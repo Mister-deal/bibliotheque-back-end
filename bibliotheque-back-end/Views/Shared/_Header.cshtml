@@ -1,69 +1,15 @@
 ﻿@{
 }
-<header>
-    <div class="header-content">
-        <div class="header-logo">
-            <img src="images/logo.jpeg" alt="Logo" />
-            <div>BIBLIOTHÈQUE Simplon</div>
+<header class="bg-[#b4936c] py-6 shadow-lg">
+    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between gap-8 sm:px-4">
+        <div class="flex items-center gap-3">
+            <img src="~/images/logo.jpeg" alt="Logo Bibliothèque Simplon" class="w-14 h-14 object-cover rounded-full shadow-md" />
+            <div class="text-white text-2xl font-bold tracking-wide">BIBLIOTHÈQUE Simplon</div>
         </div>
-        <div class="header-search">
-            <input type="text" placeholder="Recherche...">
+        <div class="flex-1 max-w-xl mx-4">
+            <input type="text" placeholder="Recherche..." class="w-full py-2.5 px-4 rounded-lg text-base text-gray-800 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition-all duration-200" />
         </div>
-        <div class="header-user">UTILISATEUR</div>
-        <a class="nav-link text-dark" asp-area="" asp-controller="Dashboard" asp-action="Index">Accès Dashboard</a>
+        <a asp-area="" asp-controller="AuthWeb" asp-action="Login" class="min-w-[120px] text-center py-3 px-4 bg-gray-200 rounded-lg text-gray-800 text-lg font-semibold shadow-md cursor-pointer hover:bg-gray-300 transition-colors duration-200">UTILISATEUR</a>
+        <a class="text-white hover:text-gray-200 transition-colors duration-200 text-lg font-medium whitespace-nowrap" asp-area="" asp-controller="Dashboard" asp-action="Index">Accès Dashboard</a>
     </div>
 </header>
-
-<style>
-    /* HEADER */
-    header {
-        background: var(--marron);
-        padding: 24px 0;
-    }
-
-    .header-content {
-        max-width: 1480px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 2rem;
-        padding: 0 2rem;
-    }
-
-    .header-logo {
-        display: flex;
-        align-items: center;
-        gap: 0.7rem;
-    }
-
-        .header-logo img {
-            width: 72px;
-            height: 72px;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-    .header-search {
-        flex: 1 1 280px;
-        max-width: 400px;
-        margin: 0 1rem;
-    }
-
-        .header-search input {
-            width: 100%;
-            padding: 9px 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-    .header-user {
-        min-width: 90px;
-        text-align: center;
-        padding: 15px 12px;
-        background: var(--gris-btn);
-        border-radius: 4px;
-        font-size: 1rem;
-    }
-</style>

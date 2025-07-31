@@ -1,80 +1,106 @@
 ﻿@model bibliotheque_back_end.Models.Livre
 @{
     ViewData["Title"] = "Détails - " + Model.Titre;
-    Layout = "_AdminLTELayout";
+    Layout = "_AdminLTELayout"; // Assurez-vous que ce layout inclut le CDN Tailwind CSS
 }
 
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h3 class="mb-0">📖 Détails du Livre</h3>
-                    <span class="badge @(Model.Etat == bibliotheque_back_end.Models.EtatLivre.Disponible ? "bg-success" : "bg-danger") fs-6">
+<!-- Assurez-vous que le CDN Tailwind CSS est inclus dans votre _AdminLTELayout.cshtml -->
+<!-- Exemple: <script src="https://cdn.tailwindcss.com"></script> -->
+<!-- Et la police Inter si vous l'utilisez: <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"> -->
+<!-- Font Awesome CDN pour les icônes (si non déjà inclus dans _AdminLTELayout) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+<div class="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex justify-center">
+        <div class="w-full lg:w-8/12 xl:w-7/12">
+            <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+                <!-- Card Header -->
+                <div class="bg-blue-600 text-white py-5 px-6 rounded-t-xl flex justify-between items-center">
+                    <h3 class="text-2xl font-bold flex items-center gap-2">
+                        <i class="fas fa-book-open"></i> Détails du Livre
+                    </h3>
+                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-lg font-semibold
+                        @(Model.Etat == bibliotheque_back_end.Models.EtatLivre.Disponible ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
                         @(Model.Etat == bibliotheque_back_end.Models.EtatLivre.Disponible ? "✅ Disponible" : "❌ " + Model.Etat)
                     </span>
                 </div>
 
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12">
-                            <h1 class="display-6 text-primary mb-3">@Model.Titre</h1>
-                            <h4 class="text-muted mb-4">👤 @Model.Auteur</h4>
+                <!-- Card Body -->
+                <div class="p-8">
+                    <div class="mb-6">
+                        <h1 class="text-4xl font-extrabold text-blue-700 mb-2">@Model.Titre</h1>
+                        <h4 class="text-gray-600 text-xl font-medium mb-4 flex items-center gap-2">
+                            <i class="fas fa-user"></i> @Model.Auteur
+                        </h4>
 
-                            @if (!string.IsNullOrEmpty(Model.Description))
-                            {
-                                <div class="alert alert-light border-start border-primary border-4">
-                                    <h6 class="fw-bold">📝 Description</h6>
-                                    <p class="mb-0">@Model.Description</p>
-                                </div>
-                            }
-                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Description))
+                        {
+                            <div class="bg-blue-50 border-l-4 border-blue-500 text-gray-800 p-4 rounded-lg shadow-sm mb-6">
+                                <h6 class="font-bold text-lg mb-2 flex items-center gap-2">
+                                    <i class="fas fa-file-alt"></i> Description
+                                </h6>
+                                <p class="mb-0 text-base">@Model.Description</p>
+                            </div>
+                        }
                     </div>
 
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <dl class="row">
-                                <dt class="col-5">📅 Année :</dt>
-                                <dd class="col-7">@Model.AnneePublication</dd>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div>
+                            <dl class="space-y-3">
+                                <div class="flex items-center">
+                                    <dt class="w-2/5 text-gray-700 font-semibold flex items-center gap-2">📅 Année :</dt>
+                                    <dd class="w-3/5 text-gray-900 text-base">@Model.AnneePublication</dd>
+                                </div>
 
                                 @if (!string.IsNullOrEmpty(Model.Editeur))
                                 {
-                                    <dt class="col-5">🏢 Éditeur :</dt>
-                                    <dd class="col-7">@Model.Editeur</dd>
+                                    <div class="flex items-center">
+                                        <dt class="w-2/5 text-gray-700 font-semibold flex items-center gap-2">🏢 Éditeur :</dt>
+                                        <dd class="w-3/5 text-gray-900 text-base">@Model.Editeur</dd>
+                                    </div>
                                 }
 
-                                <dt class="col-5">📚 Catégorie :</dt>
-                                <dd class="col-7">
-                                    <span class="badge bg-secondary fs-6">@Model.Categorie</span>
-                                </dd>
+                                <div class="flex items-center">
+                                    <dt class="w-2/5 text-gray-700 font-semibold flex items-center gap-2">📚 Catégorie :</dt>
+                                    <dd class="w-3/5">
+                                        <span class="inline-block px-4 py-1 rounded-full bg-gray-200 text-gray-800 text-sm font-semibold">@Model.Categorie</span>
+                                    </dd>
+                                </div>
                             </dl>
                         </div>
 
-                        <div class="col-md-6">
-                            <dl class="row">
-                                <dt class="col-5">🆔 ID :</dt>
-                                <dd class="col-7"><code>#@Model.Id</code></dd>
+                        <div>
+                            <dl class="space-y-3">
+                                <div class="flex items-center">
+                                    <dt class="w-2/5 text-gray-700 font-semibold flex items-center gap-2">🆔 ID :</dt>
+                                    <dd class="w-3/5 font-mono text-gray-900 text-base">#@Model.Id</dd>
+                                </div>
 
-                                <dt class="col-5">📊 État :</dt>
-                                <dd class="col-7">
-                                    <span class="badge @(Model.Etat == bibliotheque_back_end.Models.EtatLivre.Disponible ? "bg-success" : "bg-danger") fs-6">
-                                        @Model.Etat
-                                    </span>
-                                </dd>
+                                <div class="flex items-center">
+                                    <dt class="w-2/5 text-gray-700 font-semibold flex items-center gap-2">📊 État :</dt>
+                                    <dd class="w-3/5">
+                                        <span class="inline-block px-4 py-1 rounded-full text-sm font-semibold
+                                            @(Model.Etat == bibliotheque_back_end.Models.EtatLivre.Disponible ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                                            @Model.Etat
+                                        </span>
+                                    </dd>
+                                </div>
                             </dl>
                         </div>
                     </div>
                 </div>
 
-                <div class="card-footer bg-light">
-                    <div class="d-flex gap-2 justify-content-center">
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                <!-- Card Footer -->
+                <div class="bg-gray-50 py-5 px-6 rounded-b-xl">
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="bg-yellow-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-yellow-600 transition-colors duration-200 text-lg text-center">
                             ✏️ Modifier
                         </a>
-                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="bg-red-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-red-700 transition-colors duration-200 text-lg text-center">
                             🗑️ Supprimer
                         </a>
-                        <a asp-action="Index" class="btn btn-secondary">
+                        <a asp-action="Index" class="bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-gray-400 transition-colors duration-200 text-lg text-center">
                             ← Retour à la liste
                         </a>
                     </div>

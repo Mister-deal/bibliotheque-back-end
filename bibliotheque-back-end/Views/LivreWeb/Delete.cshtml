@@ -1,96 +1,169 @@
 ﻿@model bibliotheque_back_end.Models.Livre
 @{
     ViewData["Title"] = "Supprimer - " + Model.Titre;
-    Layout = "_AdminLTELayout";
+    Layout = "_AdminLTELayout"; // Assurez-vous que ce layout inclut le CDN Tailwind CSS
 }
 
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card shadow border-danger">
-                <div class="card-header bg-danger text-white">
-                    <h3 class="mb-0">🗑️ Supprimer le Livre</h3>
+<!-- Assurez-vous que le CDN Tailwind CSS est inclus dans votre _AdminLTELayout.cshtml -->
+<!-- Exemple: <script src="https://cdn.tailwindcss.com"></script> -->
+<!-- Et la police Inter si vous l'utilisez: <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"> -->
+<!-- Font Awesome CDN pour les icônes (si non déjà inclus dans _AdminLTELayout) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+<div class="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex justify-center">
+        <div class="w-full lg:w-8/12 xl:w-7/12">
+            <div class="bg-white rounded-xl shadow-2xl overflow-hidden border-2 border-red-500">
+                <!-- Card Header -->
+                <div class="bg-red-600 text-white py-5 px-6 rounded-t-xl">
+                    <h3 class="text-2xl font-bold text-center mb-0 flex items-center justify-center gap-2">
+                        <i class="fas fa-trash-alt"></i> Supprimer le Livre
+                    </h3>
                 </div>
 
-                <div class="card-body">
-                    <div class="alert alert-warning">
-                        <h5 class="alert-heading">⚠️ Attention !</h5>
-                        <p class="mb-0">Vous êtes sur le point de supprimer définitivement ce livre. Cette action est <strong>irréversible</strong>.</p>
+                <!-- Card Body -->
+                <div class="p-8">
+                    <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+                        <h5 class="font-bold text-lg mb-2 flex items-center gap-2">
+                            <i class="fas fa-exclamation-triangle"></i> Attention !
+                        </h5>
+                        <p class="mb-0 text-base">Vous êtes sur le point de supprimer définitivement ce livre. Cette action est <strong class="font-bold">irréversible</strong>.</p>
                     </div>
 
                     @if (Model.Etat != bibliotheque_back_end.Models.EtatLivre.Disponible)
                     {
-                        <div class="alert alert-danger">
-                            <h6 class="alert-heading">❌ Livre non disponible</h6>
-                            <p class="mb-0">Ce livre n'est pas disponible (état: @Model.Etat). Vérifiez son statut avant de le supprimer.</p>
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+                            <h6 class="font-bold text-lg mb-2 flex items-center gap-2">
+                                <i class="fas fa-times-circle"></i> Livre non disponible
+                            </h6>
+                            <p class="mb-0 text-base">Ce livre n'est pas disponible (état: <span class="font-semibold">@Model.Etat</span>). Vérifiez son statut avant de le supprimer.</p>
                         </div>
                     }
 
-                    <div class="row">
-                        <div class="col-12">
-                            <h4 class="text-primary mb-3">@Model.Titre</h4>
-                            <h6 class="text-muted mb-4">👤 @Model.Auteur</h6>
+                    <div class="mb-6">
+                        <h4 class="text-blue-600 text-3xl font-bold mb-2">@Model.Titre</h4>
+                        <h6 class="text-gray-600 text-xl font-medium mb-4">👤 @Model.Auteur</h6>
 
-                            @if (!string.IsNullOrEmpty(Model.Description))
-                            {
-                                <div class="mb-3">
-                                    <strong>📝 Description :</strong>
-                                    <p class="text-muted">@Model.Description</p>
-                                </div>
-                            }
-                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Description))
+                        {
+                            <div class="mb-4">
+                                <strong class="block text-gray-800 text-lg font-semibold mb-1">📝 Description :</strong>
+                                <p class="text-gray-600 text-base">@Model.Description</p>
+                            </div>
+                        }
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <dl class="row">
-                                <dt class="col-5">📅 Année :</dt>
-                                <dd class="col-7">@Model.AnneePublication</dd>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <dl class="space-y-2">
+                                <div class="flex items-center">
+                                    <dt class="w-2/5 text-gray-700 font-semibold">📅 Année :</dt>
+                                    <dd class="w-3/5 text-gray-900">@Model.AnneePublication</dd>
+                                </div>
 
                                 @if (!string.IsNullOrEmpty(Model.Editeur))
                                 {
-                                    <dt class="col-5">🏢 Éditeur :</dt>
-                                    <dd class="col-7">@Model.Editeur</dd>
+                                    <div class="flex items-center">
+                                        <dt class="w-2/5 text-gray-700 font-semibold">🏢 Éditeur :</dt>
+                                        <dd class="w-3/5 text-gray-900">@Model.Editeur</dd>
+                                    </div>
                                 }
 
-                                <dt class="col-5">📚 Catégorie :</dt>
-                                <dd class="col-7">
-                                    <span class="badge bg-secondary">@Model.Categorie</span>
-                                </dd>
+                                <div class="flex items-center">
+                                    <dt class="w-2/5 text-gray-700 font-semibold">📚 Catégorie :</dt>
+                                    <dd class="w-3/5">
+                                        <span class="inline-block px-4 py-1 rounded-full bg-gray-200 text-gray-800 text-sm font-semibold">@Model.Categorie</span>
+                                    </dd>
+                                </div>
                             </dl>
                         </div>
 
-                        <div class="col-md-6">
-                            <dl class="row">
-                                <dt class="col-5">🆔 ID :</dt>
-                                <dd class="col-7"><code>#@Model.Id</code></dd>
+                        <div>
+                            <dl class="space-y-2">
+                                <div class="flex items-center">
+                                    <dt class="w-2/5 text-gray-700 font-semibold">🆔 ID :</dt>
+                                    <dd class="w-3/5 font-mono text-gray-900">#@Model.Id</dd>
+                                </div>
 
-                                <dt class="col-5">📊 État :</dt>
-                                <dd class="col-7">
-                                    <span class="badge @(Model.Etat == bibliotheque_back_end.Models.EtatLivre.Disponible ? "bg-success" : "bg-danger")">
-                                        @Model.Etat
-                                    </span>
-                                </dd>
+                                <div class="flex items-center">
+                                    <dt class="w-2/5 text-gray-700 font-semibold">📊 État :</dt>
+                                    <dd class="w-3/5">
+                                        <span class="inline-block px-4 py-1 rounded-full text-sm font-semibold
+                                            @(Model.Etat == bibliotheque_back_end.Models.EtatLivre.Disponible ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                                            @Model.Etat
+                                        </span>
+                                    </dd>
+                                </div>
                             </dl>
                         </div>
                     </div>
                 </div>
 
-                <div class="card-footer bg-light">
-                    <form asp-action="Delete" method="post" class="d-inline">
-                        <input asp-for="Id" type="hidden" />
-                        <div class="d-flex gap-2 justify-content-center">
-                            <button type="submit" class="btn btn-danger btn-lg"
-                                    onclick="return confirm('Êtes-vous vraiment sûr de vouloir supprimer ce livre ?')">
-                                🗑️ Oui, supprimer définitivement
-                            </button>
-                            <a asp-action="Index" class="btn btn-secondary btn-lg">
-                                ❌ Non, annuler
-                            </a>
-                        </div>
-                    </form>
+                <!-- Card Footer -->
+                <div class="bg-gray-50 py-5 px-6 rounded-b-xl">
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button type="button" id="confirmDeleteBtn" class="bg-red-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-red-700 transition-colors duration-200 text-lg">
+                            🗑️ Oui, supprimer définitivement
+                        </button>
+                        <a asp-action="Index" class="bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-gray-400 transition-colors duration-200 text-lg text-center">
+                            ❌ Non, annuler
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Custom Confirmation Modal -->
+<div id="deleteConfirmationModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
+        <h4 class="text-2xl font-bold text-gray-900 mb-4">Confirmer la suppression</h4>
+        <p class="text-gray-700 mb-6">Êtes-vous vraiment sûr de vouloir supprimer ce livre ? Cette action est irréversible.</p>
+        <div class="flex justify-end gap-4">
+            <button id="cancelDeleteBtn" class="bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg shadow hover:bg-gray-400 transition-colors duration-200">Annuler</button>
+            <button id="confirmDeleteActionBtn" class="bg-red-600 text-white font-bold py-2 px-6 rounded-lg shadow hover:bg-red-700 transition-colors duration-200">Supprimer</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const deleteConfirmationModal = document.getElementById('deleteConfirmationModal');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            const confirmDeleteActionBtn = document.getElementById('confirmDeleteActionBtn');
+            const deleteForm = document.querySelector('form[asp-action="Delete"]'); // Select the form
+
+            // Show the modal when the main delete button is clicked
+            confirmDeleteBtn.addEventListener('click', function (e) {
+                e.preventDefault(); // Prevent default form submission
+                deleteConfirmationModal.classList.remove('hidden');
+            });
+
+            // Hide the modal when the cancel button is clicked
+            cancelDeleteBtn.addEventListener('click', function () {
+                deleteConfirmationModal.classList.add('hidden');
+            });
+
+            // Submit the form when the confirmation button in the modal is clicked
+            confirmDeleteActionBtn.addEventListener('click', function () {
+                deleteConfirmationModal.classList.add('hidden'); // Hide modal
+                deleteForm.submit(); // Submit the form
+            });
+
+            // Hide modal if user clicks outside of it
+            deleteConfirmationModal.addEventListener('click', function (e) {
+                if (e.target === deleteConfirmationModal) {
+                    deleteConfirmationModal.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+}

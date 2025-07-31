@@ -28,6 +28,12 @@
     <None Update="Scripts\seed.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="wwwroot\images\book_login.jpg" />
+    <None Include="wwwroot\images\Logo Simplon Bibliotheque.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="contents\" />
   </ItemGroup>
 
 </Project>

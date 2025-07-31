@@ -2,155 +2,133 @@
     ViewData["Title"] = "Home Page";
 }
 
+<!-- Placez cette ligne dans la section <head> de votre fichier _Layout.cshtml ou équivalent -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Tailwind CSS CDN - Placez-le avant votre propre CSS si vous avez des overrides -->
+<script src="https://cdn.tailwindcss.com"></script>
+
 @await Html.PartialAsync("_Header")
 
-<main>
-    <!-- Grosse image centrale -->
-    <div class="main-image">
-        <img src="images/img1.jpg" />
+<main class="max-w-7xl mx-auto px-6 py-12 sm:px-8 lg:px-10">
+    <!-- Grosse image centrale - Image d'une bibliothèque moderne et accueillante -->
+    <div class="relative bg-gray-100 max-w-6xl mx-auto min-h-[450px] rounded-3xl shadow-2xl overflow-hidden mb-16 flex items-center justify-center md:min-h-[350px] sm:min-h-[250px]">
+        <img src="https://placehold.co/1200x600/b4936c/ffffff?text=Bibliothèque+Accueillante" alt="Image d'une bibliothèque moderne et accueillante" class="w-full h-full object-cover rounded-3xl block transition-transform duration-500 ease-in-out hover:scale-105" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-3xl flex items-end p-8">
+            <h1 class="text-white text-4xl md:text-5xl font-extrabold leading-tight drop-shadow-lg">
+                Votre Portail vers la Connaissance
+            </h1>
+        </div>
     </div>
-    <!-- Actualités -->
-    <div class="actualites">
-        <div class="actualite-img"><img src="images/img1.jpg"/></div>
-        <div class="actualite-img"><img src="images/img2.jpg" /></div>
-        <div class="actualite-img"><img src="images/img3.jpg" /></div>
-    </div>
-    <div class="actions-center">
-        <button class="btn-light">Voir tous les livres</button>
-    </div>
-</main>
 
-<!-- Agenda -->
-<section class="agenda-section">
-    <div class="agenda-content bg-white">
-        <div class="agenda-title">AGENDA</div>
-        <div class="actualites">
-            <div class="actualite-img"><img src="images/img1.jpg" /></div>
-            <div class="actualite-img"><img src="images/img2.jpg" /></div>
-            <div class="actualite-img"><img src="images/img3.jpg" /></div>
+    <!-- Section Actualités - Cartes améliorées avec images et descriptions -->
+    <section class="text-center mb-20">
+        <h2 class="text-4xl font-bold text-gray-900 mb-12 tracking-tight">Nos Actualités</h2>
+        <div class="flex flex-wrap justify-center gap-8 max-w-6xl mx-auto">
+            <!-- Actualité 1 -->
+            <div class="flex-1 min-w-[300px] max-w-[380px] bg-white rounded-3xl shadow-xl overflow-hidden transition-all duration-300 ease-in-out hover:translate-y-[-8px] hover:shadow-2xl flex flex-col">
+                <div class="w-full aspect-video bg-gray-200 overflow-hidden">
+                    <img src="https://placehold.co/600x400/d8d8d8/232323?text=Nouvelle+Collection" alt="Image d'une nouvelle collection de livres" class="w-full h-full object-cover transition-transform duration-300 ease-in-out hover:scale-105"/>
+                </div>
+                <div class="p-7 flex-grow">
+                    <h3 class="text-2xl font-semibold mb-3 text-gray-900 leading-snug">Nouvelle collection de printemps</h3>
+                    <p class="text-gray-700 text-lg">Découvrez nos dernières acquisitions et les coups de cœur de nos bibliothécaires. Des romans aux essais, il y en a pour tous les goûts !</p>
+                </div>
+                <div class="p-7 pt-0">
+                    <button class="w-full bg-[#b4936c] text-white py-3 px-6 rounded-xl text-base font-medium cursor-pointer transition-all duration-300 ease-in-out shadow-md hover:bg-[#a3825c] hover:translate-y-[-2px] hover:shadow-lg">En savoir plus</button>
+                </div>
+            </div>
+            <!-- Actualité 2 -->
+            <div class="flex-1 min-w-[300px] max-w-[380px] bg-white rounded-3xl shadow-xl overflow-hidden transition-all duration-300 ease-in-out hover:translate-y-[-8px] hover:shadow-2xl flex flex-col">
+                <div class="w-full aspect-video bg-gray-200 overflow-hidden">
+                    <img src="https://placehold.co/600x400/d8d8d8/232323?text=Atelier+Ecriture" alt="Image d'un atelier d'écriture créative" class="w-full h-full object-cover transition-transform duration-300 ease-in-out hover:scale-105" />
+                </div>
+                <div class="p-7 flex-grow">
+                    <h3 class="text-2xl font-semibold mb-3 text-gray-900 leading-snug">Atelier d'écriture créative</h3>
+                    <p class="text-gray-700 text-lg">Rejoignez notre atelier mensuel pour libérer votre imagination et partager vos récits avec d'autres passionnés.</p>
+                </div>
+                <div class="p-7 pt-0">
+                    <button class="w-full bg-[#b4936c] text-white py-3 px-6 rounded-xl text-base font-medium cursor-pointer transition-all duration-300 ease-in-out shadow-md hover:bg-[#a3825c] hover:translate-y-[-2px] hover:shadow-lg">S'inscrire</button>
+                </div>
+            </div>
+            <!-- Actualité 3 -->
+            <div class="flex-1 min-w-[300px] max-w-[380px] bg-white rounded-3xl shadow-xl overflow-hidden transition-all duration-300 ease-in-out hover:translate-y-[-8px] hover:shadow-2xl flex flex-col">
+                <div class="w-full aspect-video bg-gray-200 overflow-hidden">
+                    <img src="https://placehold.co/600x400/d8d8d8/232323?text=Heure+du+Conte" alt="Image d'une heure du conte pour enfants" class="w-full h-full object-cover transition-transform duration-300 ease-in-out hover:scale-105" />
+                </div>
+                <div class="p-7 flex-grow">
+                    <h3 class="text-2xl font-semibold mb-3 text-gray-900 leading-snug">Heure du conte pour les petits</h3>
+                    <p class="text-gray-700 text-lg">Chaque mercredi, des histoires magiques et des aventures captivantes attendent les jeunes lecteurs dans notre espace jeunesse.</p>
+                </div>
+                <div class="p-7 pt-0">
+                    <button class="w-full bg-[#b4936c] text-white py-3 px-6 rounded-xl text-base font-medium cursor-pointer transition-all duration-300 ease-in-out shadow-md hover:bg-[#a3825c] hover:translate-y-[-2px] hover:shadow-lg">Découvrir</button>
+                </div>
+            </div>
         </div>
-        <div class="actions-center">
-            <button class="btn-light">Voir tous les événements</button>
+        <div class="text-center mt-12">
+            <button class="bg-[#b4936c] text-white py-4 px-10 rounded-xl text-xl font-semibold cursor-pointer transition-all duration-300 ease-in-out shadow-lg hover:bg-[#a3825c] hover:translate-y-[-3px] hover:shadow-xl">Voir tous les livres</button>
         </div>
-    </div>
-</section>
+    </section>
+
+    <!-- Section Agenda - Design similaire aux actualités pour la cohérence -->
+    <section class="bg-[#b4936c] text-white py-16 mt-16 rounded-3xl shadow-2xl">
+        <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-10">
+            <h2 class="font-bold text-4xl mb-12 tracking-wide text-center">AGENDA</h2>
+            <div class="flex flex-wrap justify-center gap-8 mb-12">
+                <!-- Événement 1 -->
+                <div class="flex-1 min-w-[300px] max-w-[380px] bg-white rounded-3xl shadow-xl overflow-hidden transition-all duration-300 ease-in-out hover:translate-y-[-8px] hover:shadow-2xl flex flex-col text-gray-900">
+                    <div class="w-full aspect-video bg-gray-200 overflow-hidden">
+                        <img src="https://placehold.co/600x400/d8d8d8/232323?text=Rencontre+Auteur" alt="Image d'une rencontre avec un auteur" class="w-full h-full object-cover transition-transform duration-300 ease-in-out hover:scale-105" />
+                    </div>
+                    <div class="p-7 flex-grow">
+                        <h3 class="text-2xl font-semibold mb-3 leading-snug">Rencontre avec l'auteur local</h3>
+                        <p class="text-lg">Discussion et séance de dédicaces avec Jean Dupont, figure emblématique de la littérature régionale.</p>
+                    </div>
+                    <div class="p-7 pt-0">
+                        <button class="w-full bg-[#b4936c] text-white py-3 px-6 rounded-xl text-base font-medium cursor-pointer transition-all duration-300 ease-in-out shadow-md hover:bg-[#a3825c] hover:translate-y-[-2px] hover:shadow-lg">Détails</button>
+                    </div>
+                </div>
+                <!-- Événement 2 -->
+                <div class="flex-1 min-w-[300px] max-w-[380px] bg-white rounded-3xl shadow-xl overflow-hidden transition-all duration-300 ease-in-out hover:translate-y-[-8px] hover:shadow-2xl flex flex-col text-gray-900">
+                    <div class="w-full aspect-video bg-gray-200 overflow-hidden">
+                        <img src="https://placehold.co/600x400/d8d8d8/232323?text=Ciné-Club" alt="Image d'une projection de ciné-club" class="w-full h-full object-cover transition-transform duration-300 ease-in-out hover:scale-105" />
+                    </div>
+                    <div class="p-7 flex-grow">
+                        <h3 class="text-2xl font-semibold mb-3 leading-snug">Projection Ciné-club : Film Mystère</h3>
+                        <p class="text-lg">Venez découvrir un film surprise et en discuter après la séance dans une ambiance conviviale et cinéphile.</p>
+                    </div>
+                    <div class="p-7 pt-0">
+                        <button class="w-full bg-[#b4936c] text-white py-3 px-6 rounded-xl text-base font-medium cursor-pointer transition-all duration-300 ease-in-out shadow-md hover:bg-[#a3825c] hover:translate-y-[-2px] hover:shadow-lg">Réserver</button>
+                    </div>
+                </div>
+                <!-- Événement 3 -->
+                <div class="flex-1 min-w-[300px] max-w-[380px] bg-white rounded-3xl shadow-xl overflow-hidden transition-all duration-300 ease-in-out hover:translate-y-[-8px] hover:shadow-2xl flex flex-col text-gray-900">
+                    <div class="w-full aspect-video bg-gray-200 overflow-hidden">
+                        <img src="https://placehold.co/600x400/d8d8d8/232323?text=Exposition+Livre" alt="Image d'une exposition sur l'histoire du livre" class="w-full h-full object-cover transition-transform duration-300 ease-in-out hover:scale-105" />
+                    </div>
+                    <div class="p-7 flex-grow">
+                        <h3 class="text-2xl font-semibold mb-3 leading-snug">Exposition : L'Histoire du Livre</h3>
+                        <p class="text-lg">Voyagez à travers les âges et les techniques d'impression, des manuscrits anciens aux livres numériques.</p>
+                    </div>
+                    <div class="p-7 pt-0">
+                        <button class="w-full bg-[#b4936c] text-white py-3 px-6 rounded-xl text-base font-medium cursor-pointer transition-all duration-300 ease-in-out shadow-md hover:bg-[#a3825c] hover:translate-y-[-2px] hover:shadow-lg">Visiter</button>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center">
+                <button class="bg-white text-[#b4936c] py-4 px-10 rounded-xl text-xl font-semibold cursor-pointer transition-all duration-300 ease-in-out shadow-lg hover:bg-gray-100 hover:translate-y-[-3px] hover:shadow-xl">Voir tous les événements</button>
+            </div>
+        </div>
+    </section>
 
 @await Html.PartialAsync("_Footer")
 
-<!-- Style CSS -->
+<!-- Custom Styles (minimal, for variables and specific overrides if needed) -->
 <style>
-    :root {
-        --marron: #b4936c;
-        --noir: #232323;
-        --blanc: #fff;
-        --gris-img: #d8d8d8;
-        --gris-bg: #f8f8f8;
-        --gris-btn: #e3e3e3;
-    }
-
+    /* Base styles, mostly handled by Tailwind's preflight */
     body {
-        margin: 0;
-        background: var(--gris-bg);
-        font-family: 'Segoe UI', Arial, sans-serif;
-        color: var(--noir);
+        font-family: 'Inter', sans-serif;
+        /* Tailwind's default background-color is usually white, you can override it here if needed */
+        /* background-color: #f0f2f5; */
     }
-
-    /* MAIN */
-    main {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 24px 2rem 0 2rem;
-    }
-
-    .main-image {
-        background: var(--gris-img);
-        max-width: 900px;
-        min-height: 360px;
-        border-radius: 16px;
-        margin: 2rem auto 2.5rem auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-        .main-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 16px;
-            display: block;
-        }
-
-    .actualites {
-        display: flex;
-        gap: 2rem;
-        justify-content: center;
-        margin-bottom: 24px;
-        max-width: 900px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .actualite-img {
-        flex: 1 1 0%;
-        max-width: 260px;
-        aspect-ratio: 1 / 1;
-        background: var(--gris-img);
-        border-radius: 12px;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-        .actualite-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.25s;
-        }
-
-    .actions-center {
-        text-align: center;
-        margin-bottom: 1.8rem;
-    }
-
-    .btn-light {
-        background: var(--gris-btn);
-        color: var(--noir);
-        border: none;
-        border-radius: 3px;
-        padding: 5px 14px;
-        font-size: 1rem;
-        cursor: pointer;
-        margin-top: 2px;
-        transition: background 0.2s;
-    }
-
-        .btn-light:hover {
-            background: #e0e0e0;
-        }
-
-    /* AGENDA */
-    .agenda-section {
-        background: var(--marron);
-        color: var(--noir);
-        margin: 36px 0 0 0;
-        padding: 34px 0 26px 0;
-    }
-
-    .agenda-content {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 0 2rem;
-    }
-
-    .agenda-title {
-        font-weight: 600;
-        font-size: 1.2rem;
-        margin-bottom: 16px;
-        letter-spacing: 0.7px;
-    }
-
 </style>
+</main>

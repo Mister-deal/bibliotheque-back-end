@@ -103,7 +103,43 @@ public class AuthService : IAuthService
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-        
+
+        public async Task<bool> RegisterUser(string nom, string prenom, string email, string password)
+        {
+            // 1. Vérifier si l'email existe déjà
+            Membre? existingMembre = await _membreService.GetMemberByEmailAsync(email);
+            if (existingMembre != null)
+            {
+                throw new InvalidOperationException("Cette adresse email est déjà utilisée.");
+            }
+
+            // 2. Hacher le mot de passe
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
+
+            // 3. Créer un nouvel objet Membre
+            Membre newMembre = new Membre
+            {
+                Nom = nom,
+                Prenom = prenom,
+                Email = email,
+                MotDePasse = hashedPassword // Stocker le mot de passe haché
+            };
+
+            // 4. Ajouter le nouveau membre à la base de données via le service
+            // Assurez-vous que IMembreService a une méthode AddMemberAsync qui retourne le membre créé ou un booléen
+            try
+            {
+                await _membreService.AddMemberAsync(newMembre, password); // Assurez-vous que cette méthode existe et est implémentée
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Log de l'exception si quelque chose ne va pas lors de l'ajout à la DB
+                Console.WriteLine($"Erreur lors de l'ajout du nouveau membre à la base de données: {ex.Message}");
+                return false; // Indique que l'enregistrement a échoué
+            }
+        }
+
         public static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
