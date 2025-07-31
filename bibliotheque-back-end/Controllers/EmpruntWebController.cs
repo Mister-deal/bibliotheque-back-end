@@ -1,4 +1,5 @@
 ﻿using bibliotheque_back_end.Models;
+using bibliotheque_back_end.Models.DTO;
 using bibliotheque_back_end.Models.Service.Interface;
 using BibliothequeBackEnd.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -84,38 +85,46 @@ public class EmpruntWebController : Controller
         }
     }
     
-    // GET: /EmpruntWeb/Create
+    // GET: /EmpruntWeb/Create (Pour afficher le formulaire)
     public async Task<IActionResult> Create()
     {
-        ViewBag.Membres = await _membreService.GetAllMembersAsync();
-        ViewBag.Livres = await _livreService.GetAllBooksAsync();
-        ViewBag.Employes = await _employeService.GetAllEmployeesAsync();
-
-        return View(new EmpruntCreateViewModel());
+        // Charger les données pour les dropdowns lors de l'affichage initial du formulaire
+        ViewBag.Membres = await _membreService.GetAllMembersAsync(); // Assurez-vous que cette méthode retourne IEnumerable<Membre> ou un DTO
+        ViewBag.Livres = await _livreService.GetAllBooksAsync(); // Assurez-vous que cette méthode retourne IEnumerable<Livre> ou un DTO
+        ViewBag.Employes = await _employeService.GetAllEmployeesAsync(); // Assurez-vous que cette méthode retourne IEnumerable<Employe> ou un DTO
+        return View(new EmpruntCreateViewModel()); // Passe un modèle vide pour le formulaire
     }
+
 
     // POST: /EmpruntWeb/Create
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    [ValidateAntiForgeryToken] // Protection CSRF pour les formulaires web
     public async Task<IActionResult> Create([FromForm] EmpruntCreateViewModel model)
     {
+        // Recharge les données pour les dropdowns avant de vérifier ModelState,
+        // afin qu'elles soient disponibles si le modèle n'est pas valide.
+        await LoadDropdownsForViewBag();
+
         if (!ModelState.IsValid)
         {
-            ViewBag.Membres = await _membreService.GetAllMembersAsync();
-            ViewBag.Livres = await _livreService.GetAllBooksAsync();
-            ViewBag.Employes = await _employeService.GetAllEmployeesAsync();
-            return View(model);
+            return View(model); // Retourne la vue avec les erreurs de validation du ViewModel
         }
+
+        // Mapper le ViewModel vers le DTO de service
+        var empruntCreateDto = new EmpruntCreateDto
+        {
+            MembreId = model.MembreId,
+            LivreIds = model.LivreIds ?? new List<int>(), // Assurez-vous que LivreIds n'est jamais null
+            DateRetour = model.DateRetour, // Renommé dans le DTO
+            EmployeValidationId = model.EmployeValidationId
+        };
 
         try
         {
-            var createdEmprunt = await _empruntService.CreateEmpruntAsync(
-                model.MembreId,
-                model.LivreIds,
-                model.DateRetour,
-                model.EmployeValidationId
-            );
+            // Appeler le service avec le DTO d'entrée
+            var createdEmprunt = await _empruntService.CreateEmpruntAsync(empruntCreateDto);
 
+            // Rediriger vers la page de détails du nouvel emprunt créé
             return RedirectToAction(nameof(Details), new { id = createdEmprunt.Id });
         }
         catch (ArgumentException ex)
@@ -132,16 +141,27 @@ public class EmpruntWebController : Controller
         }
         catch (Exception ex)
         {
+            // Pour toute autre erreur inattendue, ajoutez un message générique
             ModelState.AddModelError(string.Empty,
                 $"Une erreur inattendue est survenue lors de la création de l'emprunt : {ex.Message}");
+            // Loggez l'exception ici pour le débogage en production
+            // _logger.LogError(ex, "Erreur lors de la création d'emprunt.");
         }
 
-        // If an error occurred, reload dropdown data and return the view with errors
+        // Si une erreur s'est produite (catch block), le code atteint ici.
+        // Les ViewBag sont déjà chargés en début de méthode.
+        return View(model); // Retourne la vue avec le modèle et les erreurs ajoutées
+    }
+    
+    // Méthode utilitaire pour charger les données des dropdowns
+    private async Task LoadDropdownsForViewBag()
+    {
+        // Assurez-vous que ces méthodes de service retournent bien des collections pour les dropdowns
         ViewBag.Membres = await _membreService.GetAllMembersAsync();
         ViewBag.Livres = await _livreService.GetAllBooksAsync();
         ViewBag.Employes = await _employeService.GetAllEmployeesAsync();
-        return View(model);
     }
+
     
     // GET: /EmpruntWeb/ReturnBook/{empruntId}/{livreId} (Optional, could be combined with ReturnAll)
     public async Task<IActionResult> ReturnBook(int empruntId, int livreId)

@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using bibliotheque_back_end.Data;
 using bibliotheque_back_end.Models.repositery;
 using bibliotheque_back_end.Models.Service;
@@ -33,6 +34,8 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
 // Pour lire le mot de passe dans un fichier.txt 

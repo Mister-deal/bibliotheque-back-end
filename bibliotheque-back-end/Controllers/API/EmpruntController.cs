@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using bibliotheque_back_end.Models;
+using bibliotheque_back_end.Models.DTO;
 using bibliotheque_back_end.Models.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -94,23 +95,37 @@ namespace bibliotheque_back_end.Controllers
         [SwaggerResponse(400, "Requête invalide")]
         [SwaggerResponse(404, "Membre/Livre introuvable")]
         [SwaggerResponse(409, "Livre non disponible")]
-        public async Task<ActionResult<Emprunt>> Create([FromBody] CreateEmpruntRequest body)
+        [HttpPost]
+        public async Task<ActionResult<Emprunt>> CreateEmprunt([FromBody] EmpruntCreateDto empruntCreateDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); 
+            }
 
             try
             {
-                var created = await _empruntService.CreateEmpruntAsync(
-                    body.MembreId,
-                    body.LivreIds,
-                    body.DateRetourPrevue,
-                    body.EmployeValidationId);
+                var newEmprunt = await _empruntService.CreateEmpruntAsync(empruntCreateDto);
 
-                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+                return CreatedAtAction(nameof(GetEmpruntsEnCours), new { id = newEmprunt.Id }, newEmprunt);
             }
-            catch (ArgumentException ex) { return BadRequest(ex.Message); }
-            catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
-            catch (InvalidOperationException ex) { return Conflict(ex.Message); }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message); // Pour les cas comme "livre non disponible"
+            }
+            catch (Exception ex)
+            {
+                // Gestion générique des erreurs imprévues
+                return StatusCode(500, $"Erreur interne du serveur : {ex.Message}");
+            }
         }
 
         [HttpPut("{id:int}/retour/{livreId:int}")]
