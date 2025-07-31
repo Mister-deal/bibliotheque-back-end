@@ -1,136 +1,38 @@
 ﻿@{
 }
-<footer class="site-footer">
-    <div class="footer-content">
-        <div class="footer-section">
-            <div class="footer-logo">
-                <img src="images/logo.jpeg" alt="Logo" />
-                <span>BIBLIOTHÈQUE Simplon</span>
+<footer class="bg-gray-900 text-white py-10 mt-0 border-t-4 border-[#b4936c] font-inter">
+    <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 sm:px-4">
+        <div class="text-white">
+            <div class="flex items-center gap-2 mb-4">
+                <img src="https://placehold.co/45x45/d8d8d8/232323?text=Logo" alt="Logo" class="w-11 h-11 object-cover rounded-full" />
+                <span class="font-semibold text-lg text-[#b4936c]">BIBLIOTHÈQUE Simplon</span>
             </div>
-            <p>123 Rue de la République, 75001 Paris</p>
-            <p>Tél : 01 23 45 67 89</p>
+            <p class="text-gray-300 text-sm mb-1">12 rue de la brigade fantome, 59300 Valenciennes</p>
+            <p class="text-gray-300 text-sm">Tél : 01 23 45 67 89</p>
         </div>
 
-        <div class="footer-section">
-            <h4>Liens rapides</h4>
-            <a href="/catalogue">Catalogue</a>
-            <a href="/services">Services</a>
-            <a href="/evenements">Événements</a>
-            <a href="/contact">Contact</a>
+        <div class="text-white">
+            <h4 class="text-[#b4936c] text-lg font-semibold mb-4">Liens rapides</h4>
+            <a href="/catalogue" class="block text-gray-300 hover:text-[#b4936c] text-sm mb-2 transition-colors duration-200">Catalogue</a>
+            <a href="/services" class="block text-gray-300 hover:text-[#b4936c] text-sm mb-2 transition-colors duration-200">Services</a>
+            <a href="/evenements" class="block text-gray-300 hover:text-[#b4936c] text-sm mb-2 transition-colors duration-200">Événements</a>
+            <a href="/contact" class="block text-gray-300 hover:text-[#b4936c] text-sm mb-2 transition-colors duration-200">Contact</a>
         </div>
 
-        <div class="footer-section">
-            <h4>Informations</h4>
-            <a href="/horaires">Horaires d'ouverture</a>
-            <a href="/inscription">S'inscrire</a>
-            <a href="/aide">Aide</a>
+        <div class="text-white">
+            <h4 class="text-[#b4936c] text-lg font-semibold mb-4">Informations</h4>
+            <a href="/horaires" class="block text-gray-300 hover:text-[#b4936c] text-sm mb-2 transition-colors duration-200">Horaires d'ouverture</a>
+            <a href="/inscription" class="block text-gray-300 hover:text-[#b4936c] text-sm mb-2 transition-colors duration-200">S'inscrire</a>
+            <a href="/aide" class="block text-gray-300 hover:text-[#b4936c] text-sm mb-2 transition-colors duration-200">Aide</a>
         </div>
     </div>
 
-    <div class="footer-bottom">
-        <p>© @DateTime.Now.Year BiblioSimplon.fr — Tous droits réservés.</p>
-        <div class="footer-links">
-            <a href="/mentions-legales">Mentions légales</a> |
-            <a href="/contact">Contact</a>
+    <div class="max-w-6xl mx-auto px-6 pt-6 border-t border-gray-700 flex flex-col sm:flex-row justify-between items-center text-gray-400 text-xs sm:px-4">
+        <p class="mb-2 sm:mb-0">&copy; @DateTime.Now.Year BiblioSimplon.fr — Tous droits réservés.</p>
+        <div class="flex gap-2">
+            <a href="/mentions-legales" class="text-gray-300 hover:text-[#b4936c] transition-colors duration-200">Mentions légales</a>
+            <span class="text-gray-500">|</span>
+            <a href="/contact" class="text-gray-300 hover:text-[#b4936c] transition-colors duration-200">Contact</a>
         </div>
     </div>
 </footer>
-
-<style>
-    /* FOOTER */
-    .site-footer {
-        background: var(--noir) !important;
-        color: white !important;
-        padding: 40px 0 20px 0;
-        margin-top: 0;
-        border-top: 3px solid var(--marron);
-    }
-
-    .footer-content {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 0 2rem;
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 2rem;
-        margin-bottom: 30px;
-    }
-
-    .footer-section {
-        color: white !important;
-    }
-
-        .footer-section h4 {
-            color: var(--marron) !important;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            margin-top: 0;
-        }
-
-    .footer-logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-
-        .footer-logo img {
-            width: 45px;
-            height: 45px;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-        .footer-logo span {
-            font-weight: 600;
-            color: var(--marron) !important;
-            font-size: 1.1rem;
-        }
-
-    .footer-section p {
-        color: #cccccc !important;
-        margin: 5px 0;
-        font-size: 0.9rem;
-    }
-
-    .footer-section a {
-        display: block;
-        color: #cccccc !important;
-        text-decoration: none;
-        margin: 8px 0;
-        font-size: 0.9rem;
-        transition: color 0.3s ease;
-    }
-
-        .footer-section a:hover {
-            color: var(--marron) !important;
-        }
-
-    .footer-bottom {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 20px 2rem 0;
-        border-top: 1px solid #444;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: #aaa !important;
-        font-size: 0.85rem;
-    }
-
-        .footer-bottom p {
-            margin: 0;
-            color: #aaa !important;
-        }
-
-        .footer-bottom .footer-links a {
-            color: #cccccc !important;
-            text-decoration: none;
-            margin: 0 5px;
-        }
-
-            .footer-bottom .footer-links a:hover {
-                color: var(--marron) !important;
-            }
-</style>

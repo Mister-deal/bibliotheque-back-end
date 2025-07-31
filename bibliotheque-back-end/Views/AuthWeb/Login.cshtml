@@ -1,0 +1,169 @@
+﻿@model BibliothequeBackEnd.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Connexion";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-br from-stone-100 to-stone-300">
+    <div class="absolute inset-0 opacity-10 pointer-events-none">
+        <svg class="w-full h-full" fill="none" viewBox="0 0 200 200">
+            <defs>
+                <pattern id="pattern-circles" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <circle cx="10" cy="10" r="2" fill="#d4d4d4" />
+                </pattern>
+            </defs>
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#pattern-circles)" />
+        </svg>
+    </div>
+
+    <div class="relative max-w-md w-full space-y-8 p-10 bg-white rounded-2xl shadow-2xl z-10 animate-fade-in">
+        <div class="text-center">
+            <h2 class="mt-6 text-4xl font-extrabold text-gray-900">
+                Connectez-vous à votre compte
+            </h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Ou <a asp-area="" asp-controller="AuthWeb" asp-action="Register" class="font-medium text-[#b4936c] hover:text-[#a3825c]">créez un nouveau compte</a>
+            </p>
+        </div>
+
+        <form class="mt-8 space-y-6" asp-controller="AuthWeb" asp-action="Login" method="POST">
+            <input type="hidden" name="remember" value="true">
+            <div class="rounded-md shadow-sm -space-y-px">
+                <div>
+                    <label for="email-address" class="sr-only">Adresse email ou Nom d'utilisateur</label>
+                    <input asp-for="EmailOrUsername" type="text" autocomplete="username" required
+                           class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-2 focus:ring-[#b4936c] focus:border-[#b4936c] focus:z-10 sm:text-lg transition-all duration-200"
+                           placeholder="Adresse email ou Nom d'utilisateur">
+                    <span asp-validation-for="EmailOrUsername" class="text-red-500 text-sm mt-1 block"></span>
+                </div>
+                <div>
+                    <label for="password" class="sr-only">Mot de passe</label>
+                    <input asp-for="Password" type="password" autocomplete="current-password" required
+                           class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-2 focus:ring-[#b4936c] focus:border-[#b4936c] focus:z-10 sm:text-lg transition-all duration-200"
+                           placeholder="Mot de passe">
+                    <span asp-validation-for="Password" class="text-red-500 text-sm mt-1 block"></span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <input asp-for="RememberMe" type="checkbox"
+                           class="h-4 w-4 text-[#b4936c] focus:ring-[#b4936c] border-gray-300 rounded">
+                    <label asp-for="RememberMe" class="ml-2 block text-sm text-gray-900">
+                        Se souvenir de moi
+                    </label>
+                </div>
+
+                <div class="text-sm">
+                    <a href="#" class="font-medium text-[#b4936c] hover:text-[#a3825c] transition-colors duration-200">
+                        Mot de passe oublié?
+                    </a>
+                </div>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div id="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold flex items-center gap-2">
+                        <i class="fas fa-exclamation-circle"></i> Erreur :
+                    </strong>
+                    <ul class="list-disc list-inside mt-1">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+
+            <div>
+                <button type="submit"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-lg font-medium rounded-md text-white bg-[#b4936c] hover:bg-[#a3825c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b4936c] transition-all duration-200 shadow-lg">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="fas fa-lock text-white group-hover:text-gray-200 transition-colors duration-200"></i>
+                    </span>
+                    Se connecter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    @@keyframes fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fade-in 0.7s ease-out forwards;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+            const errorMessageDiv = document.getElementById('errorMessage');
+
+            loginForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                errorMessageDiv.classList.add('hidden'); 
+                errorMessageDiv.innerHTML = '';
+
+                const emailOrUsername = document.getElementById('email-address').value;
+                const password = document.getElementById('password').value;
+                
+                const loginEndpoint = '/api/auth/login';
+
+                try {
+                    const response = await fetch(loginEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            emailOrUsername: emailOrUsername,
+                            password: password
+                        }),
+                    });
+
+                    if (response.ok) { // Si la réponse est un succès (statut 2xx)
+                        const data = await response.json();
+                        const token = data.token; // Assurez-vous que votre API retourne le token dans un champ 'token'
+
+                        if (token) {
+                            localStorage.setItem('jwtToken', token);
+                            console.log('Connexion réussie ! Token JWT stocké.');
+
+                            window.location.href = '/Dashboard';
+                        } else {
+                            errorMessageDiv.classList.remove('hidden');
+                            errorMessageDiv.innerHTML = '<strong>Erreur :</strong> Le token JWT n\'a pas été reçu.';
+                        }
+                    } else {
+                        const errorData = await response.json();
+                        errorMessageDiv.classList.remove('hidden');
+                        errorMessageDiv.innerHTML = `<strong>Erreur :</strong> ${errorData.message || 'Identifiants invalides.'}`;
+                        console.error('Erreur de connexion:', errorData);
+                    }
+                } catch (error) {
+                    errorMessageDiv.classList.remove('hidden');
+                    errorMessageDiv.innerHTML = '<strong>Erreur :</strong> Impossible de se connecter au serveur. Veuillez réessayer.';
+                    console.error('Erreur réseau ou inattendue:', error);
+                }
+            });
+        });
+    </script>
+}

@@ -1,35 +1,51 @@
 ﻿@model BibliothequeBackEnd.Models.ViewModels.LivreEditViewModel
 @{
     ViewData["Title"] = "Modifier - " + Model.Titre;
-    Layout = "_Layout";
+    Layout = "_AdminLTELayout"; // Assurez-vous que ce layout inclut le CDN Tailwind CSS
 }
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card shadow">
-                <div class="card-header bg-warning text-dark">
-                    <h3 class="mb-0">✏️ Modifier le Livre</h3>
-                    <small class="text-muted">ID: #@Model.Id</small>
+<!-- Assurez-vous que le CDN Tailwind CSS est inclus dans votre _AdminLTELayout.cshtml -->
+<!-- Exemple: <script src="https://cdn.tailwindcss.com"></script> -->
+<!-- Et la police Inter si vous l'utilisez: <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"> -->
+<!-- Font Awesome CDN pour les icônes (si non déjà inclus dans _AdminLTELayout) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+<div class="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex justify-center">
+        <div class="w-full lg:w-8/12 xl:w-7/12">
+            <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+                <!-- Card Header -->
+                <div class="bg-yellow-500 text-gray-900 py-5 px-6 rounded-t-xl">
+                    <h3 class="text-2xl font-bold text-center mb-1 flex items-center justify-center gap-2">
+                        <i class="fas fa-pencil-alt"></i> Modifier le Livre
+                    </h3>
+                    <small class="block text-center text-gray-700 text-sm">ID: <code class="font-mono">#@Model.Id</code></small>
                 </div>
 
                 <form asp-controller="LivreWeb" asp-action="Edit" asp-route-id="@Model.Id" method="post" novalidate>
                     @Html.AntiForgeryToken()
                     <input asp-for="Id" type="hidden" />
 
-                    <div class="card-body">
+                    <!-- Card Body -->
+                    <div class="p-8">
                         @if (ViewBag.ErrorMessage != null)
                         {
-                            <div class="alert alert-danger">
-                                <strong> Erreur :</strong> @ViewBag.ErrorMessage
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+                                <strong class="font-bold text-lg flex items-center gap-2">
+                                    <i class="fas fa-exclamation-circle"></i> Erreur :
+                                </strong>
+                                <p class="mb-0 text-base">@ViewBag.ErrorMessage</p>
                             </div>
                         }
 
                         @if (!ViewData.ModelState.IsValid)
                         {
-                            <div class="alert alert-danger">
-                                <strong>❌ Erreurs de validation :</strong>
-                                <ul class="mb-0 mt-2">
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+                                <strong class="font-bold text-lg flex items-center gap-2">
+                                    <i class="fas fa-times-circle"></i> Erreurs de validation :
+                                </strong>
+                                <ul class="list-disc list-inside mb-0 mt-2 text-sm">
                                     @foreach (var modelError in ViewData.ModelState.Values.SelectMany(v => v.Errors))
                                     {
                                         <li>@modelError.ErrorMessage</li>
@@ -38,82 +54,82 @@
                             </div>
                         }
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Titre" class="form-label fw-bold">
-                                     Titre *
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                            <div>
+                                <label asp-for="Titre" class="block text-lg font-semibold text-gray-800 mb-2">
+                                    <i class="fas fa-book"></i> Titre <span class="text-red-500">*</span>
                                 </label>
-                                <input asp-for="Titre" class="form-control" placeholder="Titre du livre" required />
-                                <span asp-validation-for="Titre" class="text-danger small"></span>
+                                <input asp-for="Titre" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-lg" placeholder="Titre du livre" required />
+                                <span asp-validation-for="Titre" class="text-red-600 text-sm mt-1 block"></span>
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Auteur" class="form-label fw-bold">
-                                    ✍ Auteur *
+                            <div>
+                                <label asp-for="Auteur" class="block text-lg font-semibold text-gray-800 mb-2">
+                                    <i class="fas fa-user-edit"></i> Auteur <span class="text-red-500">*</span>
                                 </label>
-                                <input asp-for="Auteur" class="form-control" placeholder="Nom de l'auteur" required />
-                                <span asp-validation-for="Auteur" class="text-danger small"></span>
+                                <input asp-for="Auteur" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-lg" placeholder="Nom de l'auteur" required />
+                                <span asp-validation-for="Auteur" class="text-red-600 text-sm mt-1 block"></span>
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="AnneePublication" class="form-label fw-bold">
-                                     Année de publication *
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                            <div>
+                                <label asp-for="AnneePublication" class="block text-lg font-semibold text-gray-800 mb-2">
+                                    <i class="fas fa-calendar-alt"></i> Année de publication <span class="text-red-500">*</span>
                                 </label>
-                                <input asp-for="AnneePublication" type="number" class="form-control" min="1000" max="2100" required />
-                                <span asp-validation-for="AnneePublication" class="text-danger small"></span>
+                                <input asp-for="AnneePublication" type="number" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-lg" min="1000" max="2100" required />
+                                <span asp-validation-for="AnneePublication" class="text-red-600 text-sm mt-1 block"></span>
                             </div>
 
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="Editeur" class="form-label fw-bold">
-                                     Éditeur *
+                            <div>
+                                <label asp-for="Editeur" class="block text-lg font-semibold text-gray-800 mb-2">
+                                    <i class="fas fa-building"></i> Éditeur <span class="text-red-500">*</span>
                                 </label>
-                                <input asp-for="Editeur" class="form-control" placeholder="Nom de l'éditeur" required />
-                                <span asp-validation-for="Editeur" class="text-danger small"></span>
+                                <input asp-for="Editeur" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-lg" placeholder="Nom de l'éditeur" required />
+                                <span asp-validation-for="Editeur" class="text-red-600 text-sm mt-1 block"></span>
                             </div>
 
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="Categorie" class="form-label fw-bold">
-                                     Catégorie *
+                            <div>
+                                <label asp-for="Categorie" class="block text-lg font-semibold text-gray-800 mb-2">
+                                    <i class="fas fa-folder-open"></i> Catégorie <span class="text-red-500">*</span>
                                 </label>
-                                <select asp-for="Categorie" asp-items="Html.GetEnumSelectList<bibliotheque_back_end.Models.Categorie>()" class="form-select" required>
+                                <select asp-for="Categorie" asp-items="Html.GetEnumSelectList<bibliotheque_back_end.Models.Categorie>()" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-lg appearance-none bg-white pr-10" required>
                                     <option value="">Sélectionner une catégorie</option>
                                 </select>
-                                <span asp-validation-for="Categorie" class="text-danger small"></span>
+                                <span asp-validation-for="Categorie" class="text-red-600 text-sm mt-1 block"></span>
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-8 mb-3">
-                                <label asp-for="Description" class="form-label fw-bold">
-                                     Description
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                            <div>
+                                <label asp-for="Description" class="block text-lg font-semibold text-gray-800 mb-2">
+                                    <i class="fas fa-align-left"></i> Description <span class="text-gray-500 font-normal text-base">(optionnel)</span>
                                 </label>
-                                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Description du livre (optionnelle)"></textarea>
-                                <span asp-validation-for="Description" class="text-danger small"></span>
+                                <textarea asp-for="Description" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-lg" rows="4" placeholder="Description du livre (optionnelle)"></textarea>
+                                <span asp-validation-for="Description" class="text-red-600 text-sm mt-1 block"></span>
                             </div>
 
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="EtatLivre" class="form-label fw-bold">
-                                     État du livre
+                            <div>
+                                <label asp-for="EtatLivre" class="block text-lg font-semibold text-gray-800 mb-2">
+                                    <i class="fas fa-info-circle"></i> État du livre
                                 </label>
-                                <select asp-for="EtatLivre" asp-items="Html.GetEnumSelectList<bibliotheque_back_end.Models.EtatLivre>()" class="form-select">
+                                <select asp-for="EtatLivre" asp-items="Html.GetEnumSelectList<bibliotheque_back_end.Models.EtatLivre>()" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-lg appearance-none bg-white pr-10">
                                 </select>
-                                <span asp-validation-for="EtatLivre" class="text-danger small"></span>
+                                <span asp-validation-for="EtatLivre" class="text-red-600 text-sm mt-1 block"></span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card-footer bg-light">
-                        <div class="d-flex gap-2 justify-content-center">
-                            <button type="submit" class="btn btn-success btn-lg">
-                                 Enregistrer les modifications
+                    <div class="bg-gray-50 py-5 px-6 rounded-b-xl">
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button type="submit" class="bg-green-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-green-700 transition-colors duration-200 text-lg">
+                                <i class="fas fa-save"></i> Enregistrer les modifications
                             </button>
-                            <a asp-controller="LivreWeb" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info">
-                                 Voir les détails
+                            <a asp-controller="LivreWeb" asp-action="Details" asp-route-id="@Model.Id" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-blue-700 transition-colors duration-200 text-lg text-center">
+                                <i class="fas fa-eye"></i> Voir les détails
                             </a>
-                            <a asp-controller="LivreWeb" asp-action="Index" class="btn btn-secondary">
-                                 Annuler
+                            <a asp-controller="LivreWeb" asp-action="Index" class="bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-gray-400 transition-colors duration-200 text-lg text-center">
+                                <i class="fas fa-times"></i> Annuler
                             </a>
                         </div>
                     </div>
@@ -123,16 +139,22 @@
     </div>
 </div>
 
-<script>
-    // Debug : Log des données du formulaire
-    console.log(' DEBUG - Model ID:', @Model.Id);
-    console.log(' DEBUG - Model Titre:', '@Model.Titre');
-    console.log(' DEBUG - Formulaire prêt');
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
-    // Intercepter la soumission du formulaire
-    document.querySelector('form').addEventListener('submit', function(e) {
-        console.log(' DEBUG - Formulaire soumis !');
-        console.log(' Action:', this.action);
-        console.log(' Method:', this.method);
-    });
-</script>
+    <script>
+        // Debug : Log des données du formulaire
+        console.log(' DEBUG - Model ID:', @Model.Id);
+        console.log(' DEBUG - Model Titre:', '@Model.Titre');
+        console.log(' DEBUG - Formulaire prêt');
+
+        // Intercepter la soumission du formulaire
+        document.querySelector('form').addEventListener('submit', function(e) {
+            console.log(' DEBUG - Formulaire soumis !');
+            console.log(' Action:', this.action);
+            console.log(' Method:', this.method);
+        });
+    </script>
+}

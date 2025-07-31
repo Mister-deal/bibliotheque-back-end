@@ -1,100 +1,95 @@
 ﻿@{
-    Layout = "_AdminLTELayout";
+    Layout = "_AdminLTELayout"; // Assurez-vous que ce layout inclut le CDN Tailwind CSS
 }
 @model BibliothequeBackEnd.Models.ViewModels.DashboardViewModel
 
-<div class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0"> Tableau de bord</h1>
-            </div>
+<!-- Assurez-vous que le CDN Tailwind CSS est inclus dans votre _AdminLTELayout.cshtml -->
+<!-- Exemple: <script src="https://cdn.tailwindcss.com"></script> -->
+<!-- Et la police Inter si vous l'utilisez: <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"> -->
+<!-- Font Awesome CDN pour les icônes (si non déjà inclus dans _AdminLTELayout) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+<div class="px-4 py-6 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col sm:flex-row items-center justify-between mb-8">
+            <h1 class="text-4xl font-extrabold text-gray-900 leading-tight mb-4 sm:mb-0">Tableau de bord</h1>
         </div>
     </div>
 </div>
 
-<section class="content">
-    <div class="container-fluid">
+<section class="pb-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <!-- Statistiques -->
-        <div class="row">
-            <div class="col-lg-3 col-6">
-                <div class="small-box bg-light border">
-                    <div class="inner text-dark">
-                        <h3 class="text-dark">@Model.TotalBooks</h3>
-                        <p class="text-dark">Livres disponibles</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-book text-primary"></i>
-                    </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <!-- Livre disponibles -->
+            <div class="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl border border-gray-200">
+                <div>
+                    <h3 class="text-4xl font-bold text-gray-900 mb-1">@Model.TotalBooks</h3>
+                    <p class="text-gray-600 text-lg">Livres disponibles</p>
+                </div>
+                <div class="text-blue-600 text-5xl">
+                    <i class="fas fa-book"></i>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-6">
-                <div class="small-box bg-light border">
-                    <div class="inner text-dark">
-                        <h3 class="text-dark">@Model.TotalUsers</h3>
-                        <p class="text-muted">Utilisateurs actifs</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-users text-dark"></i>
-                    </div>
+            <!-- Utilisateurs actifs -->
+            <div class="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl border border-gray-200">
+                <div>
+                    <h3 class="text-4xl font-bold text-gray-900 mb-1">@Model.TotalUsers</h3>
+                    <p class="text-gray-600 text-lg">Utilisateurs actifs</p>
+                </div>
+                <div class="text-gray-700 text-5xl">
+                    <i class="fas fa-users"></i>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-6">
-                <div class="small-box bg-light border">
-                    <div class="inner text-dark">
-                        <h3 class="text-dark">@Model.TodayLoans</h3>
-                        <p class="text-muted">Emprunts aujourd'hui</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-handshake text-secondary"></i>
-                    </div>
+            <!-- Emprunts aujourd'hui -->
+            <div class="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl border border-gray-200">
+                <div>
+                    <h3 class="text-4xl font-bold text-gray-900 mb-1">@Model.TodayLoans</h3>
+                    <p class="text-gray-600 text-lg">Emprunts aujourd'hui</p>
+                </div>
+                <div class="text-purple-600 text-5xl">
+                    <i class="fas fa-handshake"></i>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-6">
-                <div class="small-box bg-light border">
-                    <div class="inner text-dark">
-                        <h3 class="text-dark">@Model.PendingReturns</h3>
-                        <p class="text-dark">Retours en retard</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-exclamation-triangle text-warning"></i>
-                    </div>
+            <!-- Retours en retard -->
+            <div class="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl border border-gray-200">
+                <div>
+                    <h3 class="text-4xl font-bold text-gray-900 mb-1">@Model.PendingReturns</h3>
+                    <p class="text-red-500 text-lg font-semibold">Retours en retard</p>
+                </div>
+                <div class="text-red-500 text-5xl">
+                    <i class="fas fa-exclamation-triangle"></i>
                 </div>
             </div>
         </div>
 
         <!-- Activités récentes -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header border-0">
-                        <h3 class="card-title">
-                            <i class="fas fa-history mr-2"></i>
-                            Activités récentes
-                        </h3>
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center">
+                <h3 class="text-2xl font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-history mr-3 text-gray-600"></i>
+                    Activités récentes
+                </h3>
+            </div>
+            <div class="p-6">
+                @foreach (var activity in Model.RecentActivities)
+                {
+                    <div class="flex items-start justify-between py-4 border-b border-gray-200 last:border-b-0">
+                        <div class="flex-grow">
+                            <h6 class="text-lg font-medium text-gray-900 mb-1 flex items-center">
+                                <i class="fas fa-@activity.Icon mr-3 text-gray-600"></i>
+                                @activity.Title
+                            </h6>
+                            <p class="text-gray-600 text-base">@activity.Description</p>
+                        </div>
+                        <small class="text-gray-500 text-sm whitespace-nowrap ml-4">@activity.Time.ToString("dd/MM HH:mm")</small>
                     </div>
-                    <div class="card-body">
-                        @foreach (var activity in Model.RecentActivities)
-                        {
-                            <div class="border-left-0 border-right-0 border-top-0 border-bottom p-3 mb-3" style="border-left: 4px solid #6c757d !important;">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1 text-dark">
-                                            <i class="fas fa-@activity.Icon mr-2 text-dark"></i>
-                                            @activity.Title
-                                        </h6>
-                                        <p class="mb-0 text-muted">@activity.Description</p>
-                                    </div>
-                                    <small class="text-muted">@activity.Time.ToString("dd/MM HH:mm")</small>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
+                }
             </div>
         </div>
 

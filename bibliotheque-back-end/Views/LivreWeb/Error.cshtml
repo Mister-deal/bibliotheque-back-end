@@ -1,44 +1,55 @@
 ﻿@{
     ViewData["Title"] = "Erreur";
-    Layout = "_AdminLTELayout";
+    Layout = "_AdminLTELayout"; // Assurez-vous que ce layout inclut le CDN Tailwind CSS
 }
 
-<div class="container">
-    <div class="row">
-        <div class="col-lg-6 mx-auto">
-            <div class="card border-danger shadow">
-                <div class="card-header bg-danger text-white">
-                    <h3 class="mb-0">❌ Une erreur est survenue</h3>
+<!-- Assurez-vous que le CDN Tailwind CSS est inclus dans votre _AdminLTELayout.cshtml -->
+<!-- Exemple: <script src="https://cdn.tailwindcss.com"></script> -->
+<!-- Et la police Inter si vous l'utilisez: <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"> -->
+<!-- Font Awesome CDN pour les icônes (si non déjà inclus dans _AdminLTELayout) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+<div class="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex justify-center">
+        <div class="w-full lg:w-6/12 xl:w-5/12">
+            <div class="bg-white rounded-xl shadow-2xl overflow-hidden border-2 border-red-500">
+                <!-- Card Header -->
+                <div class="bg-red-600 text-white py-5 px-6 rounded-t-xl">
+                    <h3 class="text-2xl font-bold text-center mb-0 flex items-center justify-center gap-2">
+                        <i class="fas fa-times-circle"></i> Une erreur est survenue
+                    </h3>
                 </div>
 
-                <div class="card-body text-center">
-                    <div class="mb-4">
-                        <i class="fas fa-exclamation-triangle fa-4x text-danger"></i>
+                <!-- Card Body -->
+                <div class="p-8 text-center">
+                    <div class="mb-6">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-6xl"></i>
                     </div>
 
-                    <h4 class="text-danger mb-3">Oups ! Une erreur est survenue</h4>
+                    <h4 class="text-red-600 text-3xl font-bold mb-4">Oups ! Une erreur est survenue</h4>
 
                     @if (ViewBag.ErrorMessage != null)
                     {
-                        <div class="alert alert-danger text-start">
-                            <strong>Détails de l'erreur :</strong><br>
-                            @ViewBag.ErrorMessage
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative text-left mb-6" role="alert">
+                            <strong class="font-bold text-lg block mb-1">Détails de l'erreur :</strong>
+                            <p class="text-base">@ViewBag.ErrorMessage</p>
                         </div>
                     }
                     else
                     {
-                        <p class="text-muted">
+                        <p class="text-gray-600 text-lg mb-6">
                             Une erreur inattendue s'est produite lors du traitement de votre demande.
                             Veuillez réessayer ou contacter l'administrateur si le problème persiste.
                         </p>
                     }
 
-                    <div class="d-flex gap-2 justify-content-center mt-4">
-                        <a asp-action="Index" class="btn btn-primary">
-                            🏠 Retour à l'accueil
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                        <a asp-action="Index" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-blue-700 transition-colors duration-200 text-lg text-center">
+                            <i class="fas fa-home"></i> Retour à l'accueil
                         </a>
-                        <button onclick="window.history.back()" class="btn btn-secondary">
-                            ← Page précédente
+                        <button onclick="window.history.back()" class="bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-gray-400 transition-colors duration-200 text-lg text-center">
+                            <i class="fas fa-arrow-left"></i> Page précédente
                         </button>
                     </div>
                 </div>
