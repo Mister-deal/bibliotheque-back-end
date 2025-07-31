@@ -176,3 +176,4 @@ Documentation API (README + Swagger)
 
     🏢 Client : BibliothèqueSimplon
 
+En cours: Création espace utilisateur, gestion Reservation, gestion emprunt, connexion et register
