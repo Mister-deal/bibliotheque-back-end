@@ -1,6 +1,7 @@
 ﻿@model BibliothequeBackEnd.Models.ViewModels.LivreCreateViewModel
 @{
     ViewData["Title"] = "Ajouter un Livre";
+    Layout = "_AdminLTELayout";
 }
 
 <div class="container">
@@ -15,7 +16,7 @@
         <div class="col-lg-8 mx-auto">
             <div class="card shadow">
                 <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">➕ Ajouter un Nouveau Livre</h3>
+                    <h3 class="mb-0"> Ajouter un Nouveau Livre</h3>
                 </div>
 
                 <form asp-action="Create" method="post">
@@ -23,7 +24,7 @@
                         @if (!ViewData.ModelState.IsValid)
                         {
                             <div class="alert alert-danger">
-                                <h6 class="alert-heading">❌ Erreurs de validation</h6>
+                                <h6 class="alert-heading"> Erreurs de validation</h6>
                                 <ul class="mb-0">
                                     @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
                                     {

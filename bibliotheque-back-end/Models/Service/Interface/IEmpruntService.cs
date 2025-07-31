@@ -13,4 +13,10 @@ public interface IEmpruntService
     Task<Emprunt?> ReturnAllBooksForEmpruntAsync(int empruntId, int employeValidationId);
     Task<Emprunt?> DeleteEmpruntAsync(int id); // Peut retourner null si non trouvé
     Task<bool> EmpruntExistsAsync(int id);
+
+    // PArtie Dashboard
+    Task<int> GetTodayLoansCountAsync();
+    Task<int> GetOverdueReturnsCountAsync();
+    Task<IEnumerable<dynamic>> GetRecentActivitiesAsync();
+    Task<IEnumerable<dynamic>> GetPopularBooksAsync();
 }

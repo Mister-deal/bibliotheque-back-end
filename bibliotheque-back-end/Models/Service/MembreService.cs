@@ -1,6 +1,7 @@
 ﻿using bibliotheque_back_end.Data;
 using bibliotheque_back_end.Models.repositery;
 using bibliotheque_back_end.Models.Service.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace bibliotheque_back_end.Models.Service;
 
@@ -139,5 +140,16 @@ public class MembreService : IMembreService
     public async Task<bool> MemberExistsAsync(int id)
     {
         return await _membreRepository.CheckIfMemberExistsAsync(id);
+    }
+
+    // Partie Dashboard
+    public async Task<int> GetActiveMembersCountAsync()
+    {
+        return await _context.Membres.CountAsync();
+
+        // Ou si tu veux seulement les membres avec des emprunts actifs :
+        // return await _context.Membres
+        //     .Where(m => m.emprunts.Any(e => e.DateRetour == null))
+        //     .CountAsync();
     }
 }

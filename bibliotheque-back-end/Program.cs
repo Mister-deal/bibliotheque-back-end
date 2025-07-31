@@ -49,6 +49,8 @@ builder.Services.AddScoped<IEmpruntService, EmpruntService>();
 builder.Services.AddScoped<ILivreService, LivreService>();
 builder.Services.AddScoped<IMembreService, MembreService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
+builder.Services.AddScoped<IStatistiquesService, StatistiquesService>(); // Pour Dashboard
+
 
 // Enregistrement des services de la couche 'Repository'
 builder.Services.AddScoped<IEmployeRepository, EmployeRepository>();
@@ -86,7 +88,6 @@ builder.Services.AddAuthentication(options =>
         };
     });
 builder.Services.AddAuthorization();
-
 
 var app = builder.Build();
 

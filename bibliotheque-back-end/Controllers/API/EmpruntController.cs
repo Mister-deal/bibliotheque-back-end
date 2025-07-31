@@ -12,13 +12,14 @@ namespace bibliotheque_back_end.Controllers
     public class EmpruntsController : ControllerBase
     {
         private readonly IEmpruntService _empruntService;
+        private readonly IStatistiquesService _statistiquesService;
 
-        public EmpruntsController(IEmpruntService empruntService)
+        public EmpruntsController(IEmpruntService empruntService, IStatistiquesService statistiquesService)
         {
             _empruntService = empruntService;
+            _statistiquesService = statistiquesService;
         }
 
-        // Petit contrat d'entrée pour POST (pas un DTO métier)
         public class CreateEmpruntRequest
         {
             [Required] public int MembreId { get; set; }
@@ -26,20 +27,17 @@ namespace bibliotheque_back_end.Controllers
             [Required, MinLength(1)]
             public List<int> LivreIds { get; set; } = new();
 
-            // ISO 8601: "2025-07-29"
             public DateOnly? DateRetourPrevue { get; set; }
 
             [Required] public int EmployeValidationId { get; set; }
         }
 
-        // GET: api/emprunts
         [HttpGet]
         [SwaggerOperation(Summary = "Liste tous les emprunts")]
         [SwaggerResponse(200, "OK", typeof(IEnumerable<Emprunt>))]
         public async Task<ActionResult<IEnumerable<Emprunt>>> GetAll()
-            => Ok(_empruntService.GetAllEmpruntsAsync());
+            => Ok(await _empruntService.GetAllEmpruntsAsync());
 
-        // GET: api/emprunts/actifs
         [HttpGet("actifs")]
         [SwaggerOperation(Summary = "Liste les emprunts actifs (non clôturés)")]
         [SwaggerResponse(200, "OK", typeof(IEnumerable<Emprunt>))]
@@ -49,7 +47,6 @@ namespace bibliotheque_back_end.Controllers
             return Ok(activeEmprunts);
         }
 
-        // GET: api/emprunts/{id}
         [HttpGet("{id:int}")]
         [SwaggerOperation(Summary = "Récupère un emprunt par son Id")]
         [SwaggerResponse(200, "OK", typeof(Emprunt))]
@@ -58,27 +55,25 @@ namespace bibliotheque_back_end.Controllers
         {
             try
             {
-                var e = _empruntService.GetEmpruntByIdAsync(id);
+                var e = await _empruntService.GetEmpruntByIdAsync(id);
                 return Ok(e);
             }
             catch (KeyNotFoundException) { return NotFound(); }
             catch (ArgumentException ex) { return BadRequest(ex.Message); }
         }
 
-        // GET: api/emprunts/membre/{membreId}
         [HttpGet("membre/{membreId:int}")]
-        [SwaggerOperation(Summary = "Récupère les emprunts d’un membre")]
+        [SwaggerOperation(Summary = "Récupère les emprunts d'un membre")]
         [SwaggerResponse(200, "OK", typeof(IEnumerable<Emprunt>))]
         public async Task<ActionResult<IEnumerable<Emprunt>>> GetByMembre(int membreId)
         {
             try
             {
-                return Ok(_empruntService.GetEmpruntsByMembreIdAsync(membreId));
+                return Ok(await _empruntService.GetEmpruntsByMembreIdAsync(membreId));
             }
             catch (ArgumentException ex) { return BadRequest(ex.Message); }
         }
 
-        // GET: api/emprunts/livre/{livreId}
         [HttpGet("livre/{livreId:int}")]
         [SwaggerOperation(Summary = "Récupère les emprunts contenant un livre donné")]
         [SwaggerResponse(200, "OK", typeof(IEnumerable<Emprunt>))]
@@ -86,12 +81,11 @@ namespace bibliotheque_back_end.Controllers
         {
             try
             {
-                return Ok(_empruntService.GetEmpruntsByLivreIdAsync(livreId));
+                return Ok(await _empruntService.GetEmpruntsByLivreIdAsync(livreId));
             }
             catch (ArgumentException ex) { return BadRequest(ex.Message); }
         }
 
-        // POST: api/emprunts
         [HttpPost]
         [SwaggerOperation(
             Summary = "Crée un nouvel emprunt",
@@ -100,13 +94,13 @@ namespace bibliotheque_back_end.Controllers
         [SwaggerResponse(400, "Requête invalide")]
         [SwaggerResponse(404, "Membre/Livre introuvable")]
         [SwaggerResponse(409, "Livre non disponible")]
-        public ActionResult<Emprunt> Create([FromBody] CreateEmpruntRequest body)
+        public async Task<ActionResult<Emprunt>> Create([FromBody] CreateEmpruntRequest body)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             try
             {
-                var created = _empruntService.CreateEmpruntAsync(
+                var created = await _empruntService.CreateEmpruntAsync(
                     body.MembreId,
                     body.LivreIds,
                     body.DateRetourPrevue,
@@ -119,39 +113,36 @@ namespace bibliotheque_back_end.Controllers
             catch (InvalidOperationException ex) { return Conflict(ex.Message); }
         }
 
-        // PUT: api/emprunts/{id}/retour/{livreId}
         [HttpPut("{id:int}/retour/{livreId:int}")]
-        [SwaggerOperation(Summary = "Retourne un livre spécifique d’un emprunt")]
+        [SwaggerOperation(Summary = "Retourne un livre spécifique d'un emprunt")]
         [SwaggerResponse(200, "OK", typeof(Emprunt))]
         [SwaggerResponse(404, "Emprunt ou livre non trouvé")]
         public async Task<ActionResult<Emprunt>> RetourLivre(int id, int livreId, [FromQuery] int employeValidationId)
         {
             try
             {
-                var updated = _empruntService.ReturnSpecificBookFromEmpruntAsync(id, livreId, employeValidationId);
-                return Ok(updated);
-            }
-            catch (ArgumentException ex) { return BadRequest(ex.Message); }
-            catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
-        }
-        
-        // PUT: api/emprunts/{id}/retour
-        [HttpPut("{id:int}/retour")]
-        [SwaggerOperation(Summary = "Retourne tous les livres d’un emprunt (clôture)")]
-        [SwaggerResponse(200, "OK", typeof(Emprunt))]
-        [SwaggerResponse(404, "Emprunt non trouvé")]
-        public async Task<ActionResult<Emprunt>> RetourTout(int id, [FromQuery] int employeValidationId)
-        {
-            try
-            {
-                var updated = _empruntService.ReturnAllBooksForEmpruntAsync(id, employeValidationId);
+                var updated = await _empruntService.ReturnSpecificBookFromEmpruntAsync(id, livreId, employeValidationId);
                 return Ok(updated);
             }
             catch (ArgumentException ex) { return BadRequest(ex.Message); }
             catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
         }
 
-        // DELETE: api/emprunts/{id}
+        [HttpPut("{id:int}/retour")]
+        [SwaggerOperation(Summary = "Retourne tous les livres d'un emprunt (clôture)")]
+        [SwaggerResponse(200, "OK", typeof(Emprunt))]
+        [SwaggerResponse(404, "Emprunt non trouvé")]
+        public async Task<ActionResult<Emprunt>> RetourTout(int id, [FromQuery] int employeValidationId)
+        {
+            try
+            {
+                var updated = await _empruntService.ReturnAllBooksForEmpruntAsync(id, employeValidationId);
+                return Ok(updated);
+            }
+            catch (ArgumentException ex) { return BadRequest(ex.Message); }
+            catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+        }
+
         [HttpDelete("{id:int}")]
         [SwaggerOperation(Summary = "Supprime un emprunt")]
         [SwaggerResponse(204, "Supprimé")]
@@ -160,11 +151,35 @@ namespace bibliotheque_back_end.Controllers
         {
             try
             {
-                var deleted = _empruntService.DeleteEmpruntAsync(id);
+                var deleted = await _empruntService.DeleteEmpruntAsync(id);
                 if (deleted == null) return NotFound();
                 return NoContent();
             }
             catch (ArgumentException ex) { return BadRequest(ex.Message); }
+        }
+
+        [HttpGet("emprunts-en-cours")]
+        [SwaggerOperation(Summary = "Nombre d'emprunts en cours")]
+        public async Task<ActionResult<int>> GetEmpruntsEnCours()
+        {
+            var count = await _statistiquesService.GetNombreEmpruntsEnCoursAsync();
+            return Ok(count);
+        }
+
+        [HttpGet("emprunts-en-retard")]
+        [SwaggerOperation(Summary = "Nombre d'emprunts en retard")]
+        public async Task<ActionResult<int>> GetEmpruntsEnRetard()
+        {
+            var count = await _statistiquesService.GetNombreEmpruntsEnRetardAsync();
+            return Ok(count);
+        }
+
+        [HttpGet("top5-auteurs")]
+        [SwaggerOperation(Summary = "Top 5 des auteurs les plus empruntés")]
+        public async Task<ActionResult<List<object>>> GetTop5Auteurs()
+        {
+            var top5 = await _statistiquesService.GetTop5AuteursPopulairesAsync();
+            return Ok(top5);
         }
     }
 }
