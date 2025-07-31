@@ -95,59 +95,60 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 // Migration automatique à chaque démarrage TODO: à chercher comment faire pour auto migrer
-//using (var scope = app.Services.CreateScope())
-//{
-//    try
-//    {
-//        var db = scope.ServiceProvider.GetRequiredService<BibliothequeDb>();
+using (var scope = app.Services.CreateScope())
+{
+   try
+   {
+       var db = scope.ServiceProvider.GetRequiredService<BibliothequeDb>();
 
-//        // Vérifier la connexion et migrer
-//        Console.WriteLine(" Migration en cours...");
-//        db.Database.Migrate();
-//        Console.WriteLine(" Migration réussie !");
+       //Vérifier la connexion et migrer
+       Console.WriteLine(" Migration en cours...");
+       db.Database.Migrate();
+       Console.WriteLine(" Migration réussie !");
 
 //        // Vérifier si des données existent déjà
-//        bool hasData = db.Employes.Any();
-//        Console.WriteLine($" Données existantes: {hasData}");
+       bool hasData = db.Employes.Any();
+       Console.WriteLine($" Données existantes: {hasData}");
 
-//        if (!hasData)
-//        {
-//            Console.WriteLine(" Insertion des données de test...");
-//            var connection = db.Database.GetDbConnection();
-//            connection.Open();
+       if (!hasData)
+       {
+           Console.WriteLine(" Insertion des données de test...");
+           var connection = db.Database.GetDbConnection();
+           connection.Open();
 
-//            var sqlFile = Path.Combine(AppContext.BaseDirectory, "seed.sql");
-//            if (File.Exists(sqlFile))
-//            {
-//                var sqlScript = File.ReadAllText(sqlFile);
-//                var commands = sqlScript.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+           
+           var sqlFile = Path.Combine(AppContext.BaseDirectory, "Scripts", "seed.sql");           Console.WriteLine($"Attempting to load seed.sql from: {sqlFile}");
+           if (File.Exists(sqlFile))
+           {
+               var sqlScript = File.ReadAllText(sqlFile);
+               var commands = sqlScript.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
-//                foreach (var commandText in commands)
-//                {
-//                    var trimmedCmd = commandText.Trim();
-//                    if (!string.IsNullOrEmpty(trimmedCmd))
-//                    {
-//                        using var command = connection.CreateCommand();
-//                        command.CommandText = trimmedCmd;
-//                        command.ExecuteNonQuery();
-//                    }
-//                }
-//                Console.WriteLine(" Données insérées !");
-//            }
-//            else
-//            {
-//                Console.WriteLine(" Fichier seed.sql introuvable");
-//            }
+               foreach (var commandText in commands)
+               {
+                   var trimmedCmd = commandText.Trim();
+                   if (!string.IsNullOrEmpty(trimmedCmd))
+                   {
+                       using var command = connection.CreateCommand();
+                       command.CommandText = trimmedCmd;
+                       command.ExecuteNonQuery();
+                   }
+               }
+               Console.WriteLine(" Données insérées !");
+           }
+           else
+           {
+               Console.WriteLine(" Fichier seed.sql introuvable");
+           }
 
-//            connection.Close();
-//        }
-//    }
-//    catch (Exception ex)
-//    {
-//        Console.WriteLine($" Erreur de migration: {ex.Message}");
-//        Console.WriteLine(" L'application continue sans migration...");
-//    }
-//}
+           connection.Close();
+       }
+   }
+   catch (Exception ex)
+   {
+       Console.WriteLine($" Erreur de migration: {ex.Message}");
+       Console.WriteLine(" L'application continue sans migration...");
+   }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
