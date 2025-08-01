@@ -39,6 +39,7 @@ builder.Services.AddControllers()
     });
 
 // Lecture du mot de passe depuis un fichier
+//le password.txt doit être créé, car il ne peut être récupéré dans le projet. il doit contenir le mot de passe d'un superUser de PostgreSql
 var password = File.ReadAllText("password.txt").Trim();
 
 // Connexion PostgreSQL
