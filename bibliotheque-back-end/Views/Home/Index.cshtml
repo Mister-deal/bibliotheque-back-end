@@ -2,9 +2,7 @@
     ViewData["Title"] = "Home Page";
 }
 
-<!-- Placez cette ligne dans la section <head> de votre fichier _Layout.cshtml ou équivalent -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<!-- Tailwind CSS CDN - Placez-le avant votre propre CSS si vous avez des overrides -->
 <script src="https://cdn.tailwindcss.com"></script>
 
 @await Html.PartialAsync("_Header")
@@ -20,7 +18,7 @@
         </div>
     </div>
 
-    <!-- Section Actualités - Cartes améliorées avec images et descriptions -->
+    <!-- Section Actualités -->
     <section class="text-center mb-20">
         <h2 class="text-4xl font-bold text-gray-900 mb-12 tracking-tight">Nos Actualités</h2>
         <div class="flex flex-wrap justify-center gap-8 max-w-6xl mx-auto">
@@ -69,7 +67,7 @@
         </div>
     </section>
 
-    <!-- Section Agenda - Design similaire aux actualités pour la cohérence -->
+    <!-- Section Agenda -->
     <section class="bg-[#b4936c] text-white py-16 mt-16 rounded-3xl shadow-2xl">
         <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-10">
             <h2 class="font-bold text-4xl mb-12 tracking-wide text-center">AGENDA</h2>
@@ -120,11 +118,7 @@
         </div>
     </section>
 
-@await Html.PartialAsync("_Footer")
-
-<!-- Custom Styles (minimal, for variables and specific overrides if needed) -->
 <style>
-    /* Base styles, mostly handled by Tailwind's preflight */
     body {
         font-family: 'Inter', sans-serif;
         /* Tailwind's default background-color is usually white, you can override it here if needed */
@@ -132,3 +126,6 @@
     }
 </style>
 </main>
+
+
+@await Html.PartialAsync("_Footer")
