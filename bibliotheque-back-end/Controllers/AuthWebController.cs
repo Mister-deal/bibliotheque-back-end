@@ -1,170 +1,308 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using bibliotheque_back_end.Models.Service.Interface;
 using BibliothequeBackEnd.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.IdentityModel.Tokens.Jwt;
 
-namespace bibliotheque_back_end.Controllers;
-
-public class AuthWebController : Controller
+namespace bibliotheque_back_end.Controllers
+{
+    public class AuthWebController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly ILogger<AuthWebController> _logger;
 
-        public AuthWebController(IAuthService authService)
+        public AuthWebController(IAuthService authService, ILogger<AuthWebController> logger)
         {
             _authService = authService;
+            _logger = logger;
         }
 
         /// <summary>
-        /// Affiche la page de connexion.
+        /// Affichage de la page de connexion
         /// </summary>
         [HttpGet]
         public IActionResult Login()
         {
-            // Si l'utilisateur est déjà authentifié, redirigez-le vers le tableau de bord
+            // Si l'utilisateur est déjà connecté, le rediriger vers la page d'accueil
             if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction("Index", "Dashboard");
+                return RedirectToAction("Index", "Home");
             }
+
+            // Récupérer les messages de succès depuis TempData
+            ViewBag.SuccessMessage = TempData["SuccessMessage"];
+
             return View();
         }
-        
-        [HttpGet]
-        public IActionResult Register()
-        {
-            if (User.Identity?.IsAuthenticated == true)
-            {
-                return RedirectToAction("Index", "Dashboard");
-            }
-            return View(); // Cherchera Views/AuthWeb/Register.cshtml
-        }
-        [HttpPost]
-    [ValidateAntiForgeryToken] // Très recommandé pour les formulaires POST
-    public async Task<IActionResult> Register(RegisterViewModel model)
-    {
-        if (!ModelState.IsValid)
-        {
-            // Si le modèle n'est pas valide (ex: champs requis manquants, mots de passe non identiques),
-            // retourne la vue avec les erreurs de validation.
-            return View(model);
-        }
 
-        try
-        {
-            // TODO: Appelez ici votre service d'authentification ou de gestion des utilisateurs
-            // pour enregistrer le nouvel utilisateur.
-            // Cette méthode devrait prendre le RegisterViewModel et créer un nouvel utilisateur
-            // dans votre base de données, potentiellement en hachant le mot de passe.
-            // Exemple (vous devrez implémenter RegisterUser dans IAuthService ou un nouveau IUserService) :
-            bool registrationSuccess = await _authService.RegisterUser(model.Nom, model.Prenom, model.Email, model.Password);
-
-            if (registrationSuccess)
-            {
-                // _logger.LogInformation("Utilisateur {Email} enregistré avec succès.", model.Email);
-                TempData["SuccessMessage"] = "Votre compte a été créé avec succès ! Veuillez vous connecter.";
-                return RedirectToAction("Login", "AuthWeb"); // Redirige vers la page de connexion
-            }
-            else
-            {
-                // Si l'enregistrement échoue pour une raison métier (ex: email déjà utilisé)
-                ModelState.AddModelError(string.Empty, "L'inscription a échoué. L'adresse email est peut-être déjà utilisée ou une autre erreur est survenue.");
-                return View(model);
-            }
-        }
-        catch (InvalidOperationException ex)
-        {
-            // Gère les erreurs spécifiques que votre service pourrait lever
-            ModelState.AddModelError(string.Empty, ex.Message);
-            // _logger.LogError(ex, "Erreur d'opération lors de l'inscription de l'utilisateur {Email}.", model.Email);
-            return View(model);
-        }
-        catch (Exception ex)
-        {
-            // Gère toutes les autres erreurs inattendues
-            ModelState.AddModelError(string.Empty, $"Une erreur inattendue est survenue lors de l'inscription : {ex.Message}");
-            // _logger.LogError(ex, "Erreur inattendue lors de l'inscription de l'utilisateur {Email}.", model.Email);
-            return View(model);
-        }
-    }
 
         /// <summary>
-        /// Gère la soumission du formulaire de connexion.
-        /// Authentifie l'utilisateur et crée un cookie d'authentification.
+        /// Traitement de la connexion
         /// </summary>
-        /// <param name="model">Le ViewModel contenant l'email/nom d'utilisateur et le mot de passe.</param>
-        /// <returns>Redirige vers le tableau de bord en cas de succès, ou retourne la vue de connexion avec des erreurs.</returns>
         [HttpPost]
-        [ValidateAntiForgeryToken] // Protège contre les attaques CSRF
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
+            // Vérifier la validité du modèle selon vos annotations
             if (!ModelState.IsValid)
             {
-                // Si le modèle n'est pas valide, retourne la vue avec les erreurs de validation
                 return View(model);
             }
 
             try
             {
-                // Tente d'authentifier l'utilisateur via le service d'authentification
-                // Ce service doit communiquer avec votre API ou directement avec la base de données
-                // et retourner le token JWT si l'authentification est réussie.
-                var jwtTokenString = await _authService.AuthenticateUser(model.EmailOrUsername, model.Password);
+                _logger.LogInformation("Tentative de connexion pour: {Email}", model.EmailOrUsername);
 
-                if (string.IsNullOrEmpty(jwtTokenString))
+                // Utiliser votre méthode AuthenticateUser
+                var jwtToken = await _authService.AuthenticateUser(model.EmailOrUsername, model.Password);
+
+                if (!string.IsNullOrEmpty(jwtToken))
                 {
-                    // Si le token est nul ou vide, les identifiants sont invalides
-                    ModelState.AddModelError(string.Empty, "Identifiants invalides (email/nom d'utilisateur ou mot de passe incorrect).");
+                    // Extraire les informations du JWT pour créer les claims de session
+                    var claims = ExtractClaimsFromJwt(jwtToken);
+
+                    // Créer l'identité pour l'authentification par cookies
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    // Configurer les propriétés d'authentification selon votre modèle
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = model.RememberMe,
+                        ExpiresUtc = model.RememberMe
+                            ? DateTimeOffset.UtcNow.AddDays(30)
+                            : DateTimeOffset.UtcNow.AddHours(8),
+                        AllowRefresh = true,
+                        RedirectUri = Url.Action("Index", "Home")
+                    };
+
+                    // Connecter l'utilisateur avec les cookies
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+
+                    _logger.LogInformation("Connexion réussie pour: {Email}", model.EmailOrUsername);
+
+                    TempData["SuccessMessage"] = "Connexion réussie ! Bienvenue dans votre espace.";
+
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    _logger.LogWarning("Échec de connexion pour: {Email}", model.EmailOrUsername);
+                    ModelState.AddModelError(string.Empty, "Email ou mot de passe incorrect.");
                     return View(model);
                 }
-
-                // Le token JWT est valide, maintenant nous allons l'utiliser pour créer les claims
-                // et authentifier l'utilisateur côté client via un cookie.
-                var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(jwtTokenString);
-
-                // Crée une liste de claims à partir du token JWT
-                var claims = new List<Claim>();
-                claims.AddRange(jwtToken.Claims); // Ajoute tous les claims du JWT
-
-                // Vous pouvez ajouter des claims supplémentaires si nécessaire, par exemple le token lui-même
-                claims.Add(new Claim("jwt", jwtTokenString));
-
-                var claimsIdentity = new ClaimsIdentity(
-                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                var authProperties = new AuthenticationProperties
-                {
-                    // Définissez ici les propriétés d'authentification, par exemple la persistance
-                    IsPersistent = model.RememberMe // 'RememberMe' du ViewModel
-                };
-
-                // Connecte l'utilisateur en utilisant le schéma d'authentification par cookies
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity),
-                    authProperties);
-
-
-                // Redirige vers le tableau de bord après une connexion réussie
-                return RedirectToAction("Index", "Dashboard");
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogError(ex, "Erreur d'invalidation lors de la connexion pour: {Email}", model.EmailOrUsername);
+                ModelState.AddModelError(string.Empty, "Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
+                return View(model);
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, "Une erreur inattendue est survenue lors de la connexion. Veuillez réessayer.");
+                _logger.LogError(ex, "Erreur générale lors de la connexion pour: {Email}", model.EmailOrUsername);
+                ModelState.AddModelError(string.Empty, "Une erreur inattendue s'est produite. Veuillez réessayer.");
                 return View(model);
             }
         }
 
         /// <summary>
-        /// Déconnecte l'utilisateur.
+        /// Affichage de la page d'inscription
         /// </summary>
         [HttpGet]
-        [HttpPost] // Permettre GET et POST pour la déconnexion
+        public IActionResult Register()
+        {
+            // Si l'utilisateur est déjà connecté, le rediriger vers le tableau de bord
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View();
+        }
+
+        /// <summary>
+        /// Traitement de l'inscription
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                _logger.LogInformation("Tentative d'inscription pour: {Email}", model.Email);
+
+                // Appeler votre service d'inscription (à implémenter dans IAuthService)
+                var result = await _authService.RegisterUser(model.Nom, model.Prenom, model.Email, model.Password);
+
+                if (result)
+                {
+                    _logger.LogInformation("Inscription réussie pour: {Email}", model.Email);
+                    TempData["SuccessMessage"] = "Inscription réussie ! Vous pouvez maintenant vous connecter.";
+                    return RedirectToAction("Login");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Une erreur s'est produite lors de l'inscription.");
+                    return View(model);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de l'inscription pour: {Email}", model.Email);
+                ModelState.AddModelError(string.Empty, "Une erreur s'est produite lors de l'inscription.");
+                return View(model);
+            }
+        }
+
+        /// <summary>
+        /// Déconnexion de l'utilisateur (POST)
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Login", "Auth"); // Redirige vers la page de connexion
+            try
+            {
+                if (User.Identity?.IsAuthenticated == true)
+                {
+                    _logger.LogInformation("Déconnexion de l'utilisateur: {UserName}", User.Identity.Name);
+
+                    // Déconnecter l'utilisateur
+                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    // Message de confirmation
+                    TempData["SuccessMessage"] = "Vous avez été déconnecté avec succès.";
+                }
+
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la déconnexion");
+                TempData["ErrorMessage"] = "Une erreur s'est produite lors de la déconnexion.";
+                return RedirectToAction("Login");
+            }
+        }
+
+        /// <summary>
+        /// Déconnexion via GET (pour liens directs)
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> LogoutGet()
+        {
+            try
+            {
+                if (User.Identity?.IsAuthenticated == true)
+                {
+                    _logger.LogInformation("Déconnexion GET de l'utilisateur: {UserName}", User.Identity.Name);
+
+                    // Déconnecter l'utilisateur
+                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    // Message de confirmation
+                    TempData["SuccessMessage"] = "Vous avez été déconnecté avec succès.";
+                }
+
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la déconnexion GET");
+                TempData["ErrorMessage"] = "Une erreur s'est produite lors de la déconnexion.";
+                return RedirectToAction("Login");
+            }
+        }
+
+        /// <summary>
+        /// Page d'accès refusé
+        /// </summary>
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            ViewBag.Message = "Vous n'avez pas les autorisations nécessaires pour accéder à cette ressource.";
+            ViewBag.ReturnUrl = Request.Headers["Referer"].ToString();
+            return View();
+        }
+
+        /// <summary>
+        /// Vérification du statut d'authentification pour AJAX
+        /// </summary>
+        [HttpGet]
+        public IActionResult CheckAuthStatus()
+        {
+            var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+
+            return Json(new
+            {
+                isAuthenticated = isAuthenticated,
+                userName = isAuthenticated ? User.Identity?.Name : null,
+                userRole = isAuthenticated ? User.FindFirst(ClaimTypes.Role)?.Value : null,
+                userEmail = isAuthenticated ? User.FindFirst(ClaimTypes.Email)?.Value : null,
+                userId = isAuthenticated ? User.FindFirst(ClaimTypes.NameIdentifier)?.Value : null
+            });
+        }
+
+        /// <summary>
+        /// Page de confirmation de déconnexion
+        /// </summary>
+        [HttpGet]
+        public IActionResult ConfirmLogout()
+        {
+            if (!User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Login");
+            }
+
+            ViewBag.UserName = User.Identity.Name;
+            return View();
+        }
+
+        /// <summary>
+        /// Extraire les claims du token JWT pour la session cookie
+        /// </summary>
+        private List<Claim> ExtractClaimsFromJwt(string jwtToken)
+        {
+            var claims = new List<Claim>();
+
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jsonToken = tokenHandler.ReadJwtToken(jwtToken);
+
+                // Copier tous les claims du JWT vers notre session
+                foreach (var claim in jsonToken.Claims)
+                {
+                    claims.Add(new Claim(claim.Type, claim.Value));
+                }
+
+                // Ajouter des informations supplémentaires pour la session
+                claims.Add(new Claim("JwtToken", jwtToken));
+                claims.Add(new Claim("LoginTime", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")));
+                claims.Add(new Claim("SessionId", Guid.NewGuid().ToString()));
+
+                _logger.LogDebug("Extraction réussie de {Count} claims depuis le JWT", claims.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de l'extraction des claims du token JWT");
+
+                // Claims minimaux en cas d'erreur
+                claims.Add(new Claim("JwtToken", jwtToken));
+                claims.Add(new Claim("LoginTime", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")));
+                claims.Add(new Claim("ErrorOccurred", "true"));
+            }
+
+            return claims;
         }
     }
+}

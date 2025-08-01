@@ -1,5 +1,5 @@
-﻿namespace bibliotheque_back_end.Models.Service.Interface;
-
+﻿using bibliotheque_back_end.Models;
+namespace bibliotheque_back_end.Models.Service.Interface;
 public interface IMembreService
 {
     Task<IEnumerable<Membre>> GetAllMembersAsync();

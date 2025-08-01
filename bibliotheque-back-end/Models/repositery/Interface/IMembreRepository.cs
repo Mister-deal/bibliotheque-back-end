@@ -1,5 +1,5 @@
-﻿namespace bibliotheque_back_end.Models.repositery;
-
+﻿using bibliotheque_back_end.Models;
+namespace bibliotheque_back_end.Models.repositery;
 public interface IMembreRepository
 {
     Task<IEnumerable<Membre>> GetAllMembersAsync();

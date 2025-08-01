@@ -1,15 +1,15 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using bibliotheque_back_end.Data;
 using bibliotheque_back_end.Models.repositery;
 using bibliotheque_back_end.Models.Service;
 using bibliotheque_back_end.Models.Service.Interface;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,10 +26,10 @@ builder.Services.AddSwaggerGen(c =>
         Version = "V.1",
         Description = "Application de gestion numérique pour une bibliothèque avec ASP.Net (MVC)",
     });
-    // Activer les annotations Swagger
     c.EnableAnnotations();
 });
 
+// JSON options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -38,119 +38,124 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
-// Pour lire le mot de passe dans un fichier.txt 
+// Lecture du mot de passe depuis un fichier
 var password = File.ReadAllText("password.txt").Trim();
 
-// Connection PostgreSQL
+// Connexion PostgreSQL
 var connectionString = $"Host=localhost;Database=bibliotheque_db;Username=postgres;Password={password};Port=5432;Include Error Detail=true;Trust Server Certificate=true";
 builder.Services.AddDbContext<BibliothequeDb>(options =>
     options.UseNpgsql(connectionString));
 
-// Enregistrement des services de la couche 'Service'
+// Services métier (Service layer)
 builder.Services.AddScoped<IEmployeService, EmployeService>();
 builder.Services.AddScoped<IEmpruntService, EmpruntService>();
 builder.Services.AddScoped<ILivreService, LivreService>();
 builder.Services.AddScoped<IMembreService, MembreService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
-builder.Services.AddScoped<IStatistiquesService, StatistiquesService>(); // Pour Dashboard
+builder.Services.AddScoped<IStatistiquesService, StatistiquesService>();
 
-
-// Enregistrement des services de la couche 'Repository'
+// Repository layer
 builder.Services.AddScoped<IEmployeRepository, EmployeRepository>();
 builder.Services.AddScoped<IEmpruntRepository, EmpruntRepository>();
 builder.Services.AddScoped<ILivreRepository, LivreRepository>();
 builder.Services.AddScoped<IMembreRepository, MembreRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 
-//Enregistrement service AuthService JWT
+// AuthService
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-//ajout logique JWT
-
+// Authentification (Cookie + JWT)
 builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+{
+    options.LoginPath = "/AuthWeb/Login";
+    options.LogoutPath = "/AuthWeb/Logout";
+    options.AccessDeniedPath = "/AuthWeb/AccessDenied";
+    options.SlidingExpiration = true;
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+})
+.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = true;
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        ValidIssuer = builder.Configuration["JwtConfig:Issuer"],
+        ValidAudience = builder.Configuration["JwtConfig:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtConfig:Key"]!)),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
 
-    }).AddJwtBearer(options =>
-    {
-        options.SaveToken = true;
-        options.RequireHttpsMetadata = true;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidIssuer = builder.Configuration["JwtConfig:Issuer"],
-            ValidAudience = builder.Configuration["JwtConfig:Audience"],
-            IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtConfig:Key"]!)),
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ClockSkew = TimeSpan.Zero
-        };
-    });
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Migration automatique à chaque démarrage TODO: à chercher comment faire pour auto migrer
+// Migration automatique
 using (var scope = app.Services.CreateScope())
 {
-   try
-   {
-       var db = scope.ServiceProvider.GetRequiredService<BibliothequeDb>();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<BibliothequeDb>();
 
-       //Vérifier la connexion et migrer
-       Console.WriteLine(" Migration en cours...");
-       db.Database.Migrate();
-       Console.WriteLine(" Migration réussie !");
+        Console.WriteLine(" Migration en cours...");
+        db.Database.Migrate();
+        Console.WriteLine(" Migration réussie !");
 
-//        // Vérifier si des données existent déjà
-       bool hasData = db.Employes.Any();
-       Console.WriteLine($" Données existantes: {hasData}");
+        bool hasData = db.Employes.Any();
+        Console.WriteLine($" Données existantes: {hasData}");
 
-       if (!hasData)
-       {
-           Console.WriteLine(" Insertion des données de test...");
-           var connection = db.Database.GetDbConnection();
-           connection.Open();
+        if (!hasData)
+        {
+            Console.WriteLine(" Insertion des données de test...");
+            var connection = db.Database.GetDbConnection();
+            connection.Open();
 
-           
-           var sqlFile = Path.Combine(AppContext.BaseDirectory, "Scripts", "seed.sql");           Console.WriteLine($"Attempting to load seed.sql from: {sqlFile}");
-           if (File.Exists(sqlFile))
-           {
-               var sqlScript = File.ReadAllText(sqlFile);
-               var commands = sqlScript.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            var sqlFile = Path.Combine(AppContext.BaseDirectory, "Scripts", "seed.sql");
+            Console.WriteLine($"Attempting to load seed.sql from: {sqlFile}");
+            if (File.Exists(sqlFile))
+            {
+                var sqlScript = File.ReadAllText(sqlFile);
+                var commands = sqlScript.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
-               foreach (var commandText in commands)
-               {
-                   var trimmedCmd = commandText.Trim();
-                   if (!string.IsNullOrEmpty(trimmedCmd))
-                   {
-                       using var command = connection.CreateCommand();
-                       command.CommandText = trimmedCmd;
-                       command.ExecuteNonQuery();
-                   }
-               }
-               Console.WriteLine(" Données insérées !");
-           }
-           else
-           {
-               Console.WriteLine(" Fichier seed.sql introuvable");
-           }
+                foreach (var commandText in commands)
+                {
+                    var trimmedCmd = commandText.Trim();
+                    if (!string.IsNullOrEmpty(trimmedCmd))
+                    {
+                        using var command = connection.CreateCommand();
+                        command.CommandText = trimmedCmd;
+                        command.ExecuteNonQuery();
+                    }
+                }
+                Console.WriteLine(" Données insérées !");
+            }
+            else
+            {
+                Console.WriteLine(" Fichier seed.sql introuvable");
+            }
 
-           connection.Close();
-       }
-   }
-   catch (Exception ex)
-   {
-       Console.WriteLine($" Erreur de migration: {ex.Message}");
-       Console.WriteLine(" L'application continue sans migration...");
-   }
+            connection.Close();
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($" Erreur de migration: {ex.Message}");
+        Console.WriteLine(" L'application continue sans migration...");
+    }
 }
 
-// Configure the HTTP request pipeline.
+// Middleware pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -162,18 +167,16 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// -- SWAGGER --
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Biblitheque-Simplon v1");
-        //c.RoutePrefix = ""; est responsable du swagger qui se lance au démarrage en route principale
     });
 }
 
-app.UseAuthentication(); // Active l'authentification jwt
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -181,4 +184,3 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
-//test jwt
