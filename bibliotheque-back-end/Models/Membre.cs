@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Swashbuckle.AspNetCore.Annotations;
+﻿using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace bibliotheque_back_end.Models
 {
@@ -30,7 +31,7 @@ namespace bibliotheque_back_end.Models
         [StringLength(255)]
         [SwaggerSchema("Mot de passe haché de l'employé")]
         public required string MotDePasse { get; set; } = string.Empty;
-        
+
         // - Documentation Mot de Passe : 
         //   ^            # Début de chaîne
         //   (?=.*[a-z])  # Au moins une lettre minuscule
@@ -38,8 +39,13 @@ namespace bibliotheque_back_end.Models
         //   (?=.*\d)     # Au moins un chiffre
         //   .{8,}        # Au moins 8 caractères
         //   $            # Fin de chaîne
-        
+
+        [JsonIgnore]
+        [SwaggerSchema(ReadOnly = true)]
         public ICollection<Emprunt> emprunts { get; set; } =  new List<Emprunt>();
+
+        [JsonIgnore]
+        [SwaggerSchema(ReadOnly = true)]
         public ICollection<Reservation> reservations { get; set; } =  new List<Reservation>();
         
     }
