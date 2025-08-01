@@ -23,7 +23,7 @@
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Retour à la page d'accueil'</a>
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Retour à la page d'accueil</a>
                     </a>
                 </li>
             </ul>
@@ -59,9 +59,15 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="@Url.Action("Index", "Auteurs")" class="nav-link">
+                            <a href="@Url.Action("Index", "Emprunt")" class="nav-link">
                                 <i class="nav-icon fas fa-user-edit"></i>
-                                <p>Auteurs</p>
+                                <p>Emprunts</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("Index", "Membres")" class="nav-link">
+                                <i class="nav-icon fas fa-user-edit"></i>
+                                <p>Membres</p>
                             </a>
                         </li>
                         @* Ici, pour rajouter les chemins futur ! *@
