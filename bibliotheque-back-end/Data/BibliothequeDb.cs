@@ -5,6 +5,7 @@ namespace bibliotheque_back_end.Data
 {
     public class BibliothequeDb: DbContext
     {
+        //création relation entre Entités et la BDD pour migrations
         public BibliothequeDb(DbContextOptions<BibliothequeDb> options) : base(options)
         {
         }

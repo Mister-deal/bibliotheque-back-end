@@ -72,6 +72,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 })
+    //ajout cookie Authweb pour validation JWT et conservation sous forme cookies
 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
 {
     options.LoginPath = "/AuthWeb/Login";
@@ -80,6 +81,7 @@ builder.Services.AddAuthentication(options =>
     options.SlidingExpiration = true;
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
 })
+    //paramètres JWT pour initialisation
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 {
     options.SaveToken = true;
@@ -101,7 +103,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Migration automatique
+// Migration automatique en relation à seed.sql avec vérification si BDD dispose données ou non
 using (var scope = app.Services.CreateScope())
 {
     try
@@ -175,7 +177,7 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Biblitheque-Simplon v1");
     });
 }
-
+//auth pour jwt
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -1,5 +1,6 @@
 ﻿namespace bibliotheque_back_end.Models
 {
+    //enum categorie livre
     public enum Categorie
     {
         Roman,

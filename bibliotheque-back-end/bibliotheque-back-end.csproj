@@ -32,8 +32,4 @@
     <None Include="wwwroot\images\Logo Simplon Bibliotheque.jpg" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="contents\" />
-  </ItemGroup>
-
 </Project>

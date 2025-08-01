@@ -6,6 +6,8 @@ namespace bibliotheque_back_end.Models.DTO;
 [SwaggerSchema("Modèle pour les requêtes de connexion (Login)")]
 public class LoginRequest
 {
+    
+    //DTO de connexion Avec Jwt
     [Required(ErrorMessage = "L'email est requis.")]
     [EmailAddress(ErrorMessage = "Le format de l'email est invalide.")]
     [SwaggerSchema("Adresse email de l'utilisateur")]
