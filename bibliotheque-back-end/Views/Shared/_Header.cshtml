@@ -1,15 +1,33 @@
 ﻿@{
 }
 <header class="bg-[#9C7853] py-6 shadow-lg">
-    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between gap-8 sm:px-4">
-        <div class="flex items-center gap-3">
-            <img src="~/images/logo.jpeg" alt="Logo Bibliothèque Simplon" class="w-14 h-14 object-cover rounded-full shadow-md border-2 border-[#F5F1E8]" />
-            <div class="text-[#F5F1E8] text-2xl font-bold tracking-wide">BIBLIOTHÈQUE Simplon</div>
-        </div>
+    <div class="max-w-7xl mx-auto px-6 sm:px-4">
+        <div class="flex items-center justify-between gap-8">
 
-        <div class="flex-1 max-w-xl mx-4">
-            <input type="text" placeholder="Recherche..." class="w-full py-2.5 px-4 rounded-lg text-base text-gray-800 bg-[#F5F1E8] focus:outline-none focus:ring-2 focus:ring-[#D4B896] focus:border-transparent transition-all duration-200" />
-        </div>
+            <!-- Logo et titre -->
+            <a asp-controller="Home" asp-action="Index"
+               class="flex items-center gap-3 text-decoration-none hover:opacity-80 transition-opacity duration-200">
+                <img src="~/images/logo.jpeg"
+                     alt="Logo Bibliothèque Simplon"
+                     class="w-14 h-14 object-cover rounded-full shadow-md border-2 border-[#F5F1E8]" />
+                <div class="text-[#F5F1E8] text-2xl font-bold tracking-wide">
+                    BIBLIOTHÈQUE Simplon
+                </div>
+            </a>
+
+            <!-- Navigation simple -->
+            <nav>
+                <a asp-controller="LivrePage"
+                   asp-action="Index"
+                   class="text-[#F5F1E8] text-lg font-medium hover:text-white transition-colors duration-200 text-decoration-none">
+                    Livres
+                </a>
+                <a asp-controller="LivrePage"
+                   asp-action="Index"
+                   class="text-[#F5F1E8] text-lg font-medium hover:text-white transition-colors duration-200 text-decoration-none">
+                    CGU
+                </a>
+            </nav>
 
         <!-- Section utilisateur dynamique -->
         <div class="flex items-center gap-4">
